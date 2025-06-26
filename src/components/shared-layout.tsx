@@ -16,11 +16,69 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { useApp } from '@/hooks/use-app';
 import { Logo } from '@/components/icons';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+
+function NavMenu() {
+  const pathname = usePathname();
+  const { currentUser } = useApp();
+  const { setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname === '/'}>
+          <Link href="/" onClick={handleLinkClick}>
+            <Home />
+            Pariuri
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+       <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/profile')}>
+          <Link href="/profile" onClick={handleLinkClick}>
+            <Wallet />
+            Portofelul meu
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/history')}>
+          <Link href="/history" onClick={handleLinkClick}>
+            <History />
+            Istoric
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/leaderboard')}>
+          <Link href="/leaderboard" onClick={handleLinkClick}>
+            <Trophy />
+            Clasament
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      {currentUser?.isAdmin && (
+          <SidebarMenuItem>
+          <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin')}>
+              <Link href="/admin" onClick={handleLinkClick}>
+              <ShieldPlus />
+              Panou Admin
+              </Link>
+          </SidebarMenuButton>
+          </SidebarMenuItem>
+      )}
+    </SidebarMenu>
+  );
+}
 
 export function SharedLayout({ children, title, showBalance = false }: { children: ReactNode, title: string, showBalance?: boolean }) {
   const { balance, currentUser, logout, appName, slogan } = useApp();
@@ -57,50 +115,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
           <Logo appName={appName} slogan={slogan} />
         </SidebarHeader>
         <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild variant="ghost" isActive={pathname === '/'}>
-                <Link href="/">
-                  <Home />
-                  Pariuri
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/profile')}>
-                <Link href="/profile">
-                  <Wallet />
-                  Portofelul meu
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/history')}>
-                <Link href="/history">
-                  <History />
-                  Istoric
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/leaderboard')}>
-                <Link href="/leaderboard">
-                  <Trophy />
-                  Clasament
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            {currentUser.isAdmin && (
-                <SidebarMenuItem>
-                <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin')}>
-                    <Link href="/admin">
-                    <ShieldPlus />
-                    Panou Admin
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-            )}
-          </SidebarMenu>
+          <NavMenu />
         </SidebarContent>
         <SidebarFooter className="flex flex-col gap-2">
             <div className="text-center text-sm text-primary-foreground/50">
