@@ -25,7 +25,7 @@ export async function generateBetDescription(input: GenerateBetDescriptionInput)
 const prompt = ai.definePrompt({
     name: 'generateBetDescriptionPrompt',
     input: { schema: GenerateBetDescriptionInputSchema },
-    output: { schema: z.string() },
+    output: { schema: z.string().nullable() },
     prompt: `Ești un crainic de pariuri carismatic și ușor sinistru pentru o casă de pariuri cu tematică întunecată numită FaithBet.
     
 Sarcina ta este să scrii o descriere scurtă (2-3 propoziții), captivantă și amuzantă pentru un nou pariu, bazată pe titlul și opțiunile acestuia.
