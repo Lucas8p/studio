@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet, History, Trophy } from 'lucide-react';
+import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, Infinity } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -136,10 +136,11 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
           {showBalance && (
             <div className="flex-shrink-0 font-semibold text-right text-sm sm:text-base md:text-lg">
               <span className="hidden sm:inline">Balanță: </span>
-              <span className="font-bold font-headline text-accent-foreground">
+              <span className="font-bold font-headline text-accent-foreground flex items-center gap-2">
                 {balance.toFixed(2)}
                 <span className="hidden sm:inline"> talanți</span>
-                <span className="sm:hidden"> talanți</span>
+                <span className="sm:hidden"> T</span>
+                <Infinity className="h-4 w-4 text-primary" />
               </span>
             </div>
           )}

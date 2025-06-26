@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/hooks/use-app';
 import type { Pariu } from '@/contexts/app-context';
-import { HandCoins, CheckCircle } from 'lucide-react';
+import { Clover, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from './ui/badge';
 
@@ -90,7 +90,7 @@ export function BettingCard({ pariu }: BettingCardProps) {
                 />
                 </div>
                 <Button onClick={handlePlaceBet} disabled={isProcessing}>
-                <HandCoins className="mr-2 h-4 w-4" />
+                <Clover className="mr-2 h-4 w-4" />
                 {isProcessing ? 'Se plasează...' : 'Plasează Pariu'}
                 </Button>
             </>
