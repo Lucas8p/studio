@@ -80,10 +80,14 @@ export default function AdminPage() {
   });
   
   useEffect(() => {
-    form.setValue('options', [
-        { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
-        { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
-    ]);
+    form.reset({
+        title: "",
+        description: "",
+        options: [
+            { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
+            { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
+        ]
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
