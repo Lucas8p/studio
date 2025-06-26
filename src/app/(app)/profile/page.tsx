@@ -55,14 +55,14 @@ function PactCard() {
                 <div>
                     <label htmlFor="amount" className="text-sm font-medium text-muted-foreground">Valoarea sufletului tău</label>
                     <div className="relative mt-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">Talanți</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">T</span>
                         <Input
                             id="amount"
                             type="number"
                             placeholder="ex., 666"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                            className="pl-16"
+                            className="pl-10"
                             min="1"
                             disabled={pactControlEnabled}
                         />

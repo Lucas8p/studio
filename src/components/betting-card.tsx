@@ -78,13 +78,13 @@ export function BettingCard({ pariu }: BettingCardProps) {
         ) : (
             <>
                 <div className="relative flex-grow">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">Talanți</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">T</span>
                 <Input
                     type="number"
                     placeholder="Sumă Pariu"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    className="pl-16"
+                    className="pl-10"
                     disabled={isProcessing}
                     min="1"
                 />

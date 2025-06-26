@@ -50,7 +50,7 @@ export default function LeaderboardPage() {
                                         <span className="truncate">{user.id}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right font-mono">{user.balance.toFixed(2)} talanți</TableCell>
+                                    <TableCell className="text-right font-mono">{user.balance.toFixed(2)} T</TableCell>
                                     <TableCell className="text-center">
                                         {user.hasMadePact && (
                                             <TooltipProvider delayDuration={0}>

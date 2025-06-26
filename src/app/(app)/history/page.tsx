@@ -46,7 +46,7 @@ export default function HistoryPage() {
                                     <TableRow key={bet.id}>
                                         <TableCell className="font-medium max-w-xs truncate">{pariu.title}</TableCell>
                                         <TableCell>{option.text}</TableCell>
-                                        <TableCell className="text-right">{bet.amount.toFixed(2)} talanți</TableCell>
+                                        <TableCell className="text-right">{bet.amount.toFixed(2)} T</TableCell>
                                         <TableCell className="text-right">{bet.odds.toFixed(2)}</TableCell>
                                         <TableCell className="text-center">
                                             {pariu.status === 'open' && <Badge variant="secondary"><Hourglass className="mr-1 h-3 w-3"/>Activ</Badge>}
@@ -54,7 +54,7 @@ export default function HistoryPage() {
                                             {isLoss && <Badge variant="destructive"><XCircle className="mr-1 h-3 w-3"/>Pierdut</Badge>}
                                         </TableCell>
                                         <TableCell className={`text-right font-bold ${isWin ? 'text-green-600' : isLoss ? 'text-destructive' : ''}`}>
-                                            {resultAmount !== null ? `${resultAmount > 0 ? '+' : ''}${resultAmount.toFixed(2)} talanți` : 'N/A'}
+                                            {resultAmount !== null ? `${resultAmount > 0 ? '+' : ''}${resultAmount.toFixed(2)} T` : 'N/A'}
                                         </TableCell>
                                     </TableRow>
                                 );

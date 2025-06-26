@@ -61,7 +61,7 @@ export default function HomePage() {
     
   return (
     <Tabs defaultValue="available" className="w-full">
-      <TabsList className="grid w-full grid-cols-1 sm:h-10 sm:grid-cols-3">
+      <TabsList className="grid h-auto w-full grid-cols-1 sm:h-10 sm:grid-cols-3">
         <TabsTrigger value="available">Pariuri Disponibile</TabsTrigger>
         <TabsTrigger value="active">Pariurile Mele Active</TabsTrigger>
         <TabsTrigger value="past">Istoric Pariuri</TabsTrigger>
@@ -102,7 +102,7 @@ export default function HomePage() {
                       <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{pariu.options[bet.optionIndex].text}</span></CardDescription>
                     </CardHeader>
                     <CardContent className="flex items-center justify-between text-sm">
-                        <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} talanți</span></div>
+                        <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} T</span></div>
                         <div className="text-muted-foreground">Cotă: <span className="font-bold text-primary-foreground">{bet.odds.toFixed(2)}</span></div>
                     </CardContent>
                      <CardFooter>
@@ -138,8 +138,8 @@ export default function HomePage() {
                         <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{pariu.options[bet.optionIndex].text}</span></CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between text-sm">
-                          <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} talanți</span></div>
-                          <div className="text-muted-foreground">Rezultat: <span className={isWin ? 'text-green-600 font-bold' : 'text-destructive font-bold'}>{isWin ? `+${(winnings - bet.amount).toFixed(2)}` : `-${bet.amount.toFixed(2)}`} talanți</span></div>
+                          <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} T</span></div>
+                          <div className="text-muted-foreground">Rezultat: <span className={isWin ? 'text-green-600 font-bold' : 'text-destructive font-bold'}>{isWin ? `+${(winnings - bet.amount).toFixed(2)}` : `-${bet.amount.toFixed(2)}`} T</span></div>
                       </CardContent>
                       <CardFooter>
                         {isWin ? (

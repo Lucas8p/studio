@@ -196,7 +196,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       odds
     };
     setBets(prev => [...prev, newBet]);
-    toast({ description: "Pariul a fost plasat, asteapta si o sa vezi cat de mare iti e credinta:)" });
+    toast({ description: "Pariul a fost plasat, așteaptă și o să vezi cât de mare îți e credința :)" });
   };
 
   const resolvePariu = (pariuId: string, winningOptionIndex: number) => {
