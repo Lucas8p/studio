@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -78,6 +78,14 @@ export default function AdminPage() {
       options: [{ text: "", odds: "" }, { text: "", odds: "" }],
     },
   });
+  
+  useEffect(() => {
+    form.setValue('options', [
+        { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
+        { text: '', odds: (1 + Math.random() * 4).toFixed(2) },
+    ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -127,7 +135,10 @@ export default function AdminPage() {
     form.reset({
       title: "",
       description: "",
-      options: [{ text: "", odds: "" }, { text: "", odds: "" }],
+      options: [
+        { text: "", odds: (1 + Math.random() * 4).toFixed(2) }, 
+        { text: "", odds: (1 + Math.random() * 4).toFixed(2) }
+      ],
     });
     setIsSubmitting(false);
   }
@@ -312,7 +323,7 @@ export default function AdminPage() {
               </div>
 
               <div className="flex justify-between items-center">
-                <Button type="button" variant="outline" onClick={() => append({ text: "", odds: "" })}>
+                <Button type="button" variant="outline" onClick={() => append({ text: "", odds: (1 + Math.random() * 4).toFixed(2) })}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Adaugă Opțiune
                 </Button>

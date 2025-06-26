@@ -25,10 +25,10 @@ export async function generateBetDescription(input: GenerateBetDescriptionInput)
 const prompt = ai.definePrompt({
     name: 'generateBetDescriptionPrompt',
     input: { schema: GenerateBetDescriptionInputSchema },
-    prompt: `Ești un crainic de pariuri carismatic și ușor sinistru pentru o casă de pariuri cu tematică întunecată numită FaithBet.
+    prompt: `Ești un cronicar ceresc plin de înțelepciune și umor pentru o casă de pariuri divină numită FaithBet.
     
-Sarcina ta este să scrii o descriere scurtă (2-3 propoziții), captivantă și amuzantă pentru un nou pariu, bazată pe titlul și opțiunile acestuia.
-Descrierea ar trebui să fie plină de umor negru, referințe subtile la supranatural, pacte și soartă. Fă-o să sune ca un eveniment monumental unde soarta însăși este în joc.
+Sarcina ta este să scrii o descriere scurtă (2-3 propoziții), captivantă și plină de speranță pentru un nou pariu, bazată pe titlul și opțiunile acestuia.
+Descrierea ar trebui să fie plină de umor fin, referințe biblice subtile, aluzii la mântuire, credință și providență. Fă-o să sune ca o încercare de credință unde voința divină se manifestă.
 
 Titlul pariului: {{{title}}}
 
