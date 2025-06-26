@@ -20,9 +20,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   title: z.string().min(10, {
@@ -39,10 +40,11 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { scenarios, addScenario, resolveScenario } = useApp();
+  const { scenarios, addScenario, resolveScenario, appName, setAppName, currentUser } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
+  const [newName, setNewName] = useState(appName);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,10 +84,55 @@ export default function AdminPage() {
     toast({ title: "Scenariu Rezolvat!", description: "Rezultatul a fost decis și câștigătorii (dacă există) au fost plătiți." });
   };
 
+  const handleNameChange = () => {
+    if (newName.trim()) {
+        setAppName(newName.trim());
+        toast({ title: "Numele a fost schimbat", description: `Platforma se numește acum "${newName.trim()}".` });
+    }
+  };
+
   const openScenarios = scenarios.filter(s => s.status === 'open');
+
+  if (!currentUser?.isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Card className="max-w-md text-center">
+            <CardHeader>
+                <CardTitle>Acces Interzis</CardTitle>
+                <CardDescription>Nu aveți permisiunea de a vizualiza această pagină.</CardDescription>
+            </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
+       <Card>
+          <CardHeader>
+            <CardTitle className="font-headline text-2xl">Setări Generale</CardTitle>
+            <CardDescription>
+                Modifică numele și alte setări ale platformei.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+              <div className="space-y-2">
+                  <Label htmlFor="appName">Numele Platformei</Label>
+                  <div className="flex gap-2">
+                        <Input
+                          id="appName"
+                          value={newName}
+                          onChange={(e) => setNewName(e.target.value)}
+                      />
+                      <Button onClick={handleNameChange}>
+                          <Settings className="mr-2 h-4 w-4" />
+                          Salvează
+                      </Button>
+                  </div>
+              </div>
+          </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Adaugă Scenariu Nou</CardTitle>

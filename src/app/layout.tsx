@@ -1,12 +1,20 @@
-import type { Metadata } from 'next';
+
+"use client";
+
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AppProvider } from '@/contexts/app-context';
+import { useApp } from '@/hooks/use-app';
+import { useEffect } from 'react';
 
-export const metadata: Metadata = {
-  title: 'FaithBet',
-  description: 'O platformă de pariuri creștine pentru distracție',
-};
+function AppTitleUpdater() {
+  const { appName } = useApp();
+  useEffect(() => {
+    document.title = appName;
+  }, [appName]);
+  return null;
+}
+
 
 export default function RootLayout({
   children,
@@ -14,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ro" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -29,6 +37,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProvider>
+          <AppTitleUpdater />
           {children}
           <Toaster />
         </AppProvider>

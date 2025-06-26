@@ -4,6 +4,12 @@
 import React, { createContext, useState, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
 
+export type User = {
+  id: string; // username
+  balance: number;
+  isAdmin: boolean;
+};
+
 export type ScenarioOption = {
   text: string;
   odds: number;
@@ -23,6 +29,7 @@ export type Bet = {
   scenarioId: string;
   optionIndex: number;
   amount: number;
+  userId: string;
 };
 
 export type NewScenarioData = {
@@ -31,6 +38,12 @@ export type NewScenarioData = {
 };
 
 type AppContextType = {
+  users: User[];
+  currentUser: User | null;
+  login: (username: string) => void;
+  logout: () => void;
+  appName: string;
+  setAppName: (name: string) => void;
   balance: number;
   scenarios: Scenario[];
   bets: Bet[];
@@ -87,18 +100,36 @@ const generateDescription = async (title: string): Promise<string> => {
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [balance, setBalance] = useState(1000);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [scenarios, setScenarios] = useState<Scenario[]>(initialScenarios);
   const [bets, setBets] = useState<Bet[]>([]);
+  const [appName, setAppName] = useState('FaithBet');
   const { toast } = useToast();
 
+  const login = (username: string) => {
+    let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
+    if (!user) {
+      const isAdmin = users.length === 0;
+      user = { id: username, balance: 1000, isAdmin };
+      setUsers(prev => [...prev, user!]);
+      toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
+    } else {
+      toast({ title: `Bine ai revenit, ${username}!` });
+    }
+    setCurrentUser(user);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+  };
+
   const addFunds = (amount: number) => {
+    if (!currentUser) return;
     if (amount > 0) {
-      setBalance(prev => prev + amount);
-      toast({
-        title: 'Fonduri Adăugate!',
-        description: `S-au adăugat cu succes ${amount.toFixed(2)} $ în balanța ta.`
-      });
+      const updatedUser = { ...currentUser, balance: currentUser.balance + amount };
+      setCurrentUser(updatedUser);
+      setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
     }
   };
 
@@ -115,32 +146,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const placeBet = (scenarioId: string, optionIndex: number, amount: number) => {
+    if (!currentUser) {
+        toast({ variant: 'destructive', title: 'Neautorizat', description: 'Trebuie să fii conectat pentru a plasa un pariu.' });
+        return;
+    }
+
     const scenario = scenarios.find(s => s.id === scenarioId);
     if (!scenario || scenario.status === 'closed') {
         toast({ variant: 'destructive', title: 'Pariuri Închise', description: 'Acest scenariu nu mai este deschis pentru pariuri.' });
         return;
     }
-    if (amount > balance) {
+    if (amount > currentUser.balance) {
       toast({ variant: 'destructive', title: 'Un Test de Prudență', description: 'Fondurile tale sunt scăzute. Poate un salt de credință mai mic este indicat?' });
       return;
     }
 
-    setBalance(prev => prev - amount);
+    const updatedUser = { ...currentUser, balance: currentUser.balance - amount };
+    setCurrentUser(updatedUser);
+    setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+
     const newBet: Bet = {
       id: new Date().getTime().toString(),
       scenarioId,
       optionIndex,
-      amount
+      amount,
+      userId: currentUser.id
     };
     setBets(prev => [...prev, newBet]);
-    toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} $ pariați.` });
+    toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} 魂 pariați.` });
   };
 
   const resolveScenario = (scenarioId: string, winningOptionIndex: number) => {
     const scenarioToResolve = scenarios.find(s => s.id === scenarioId);
     if (!scenarioToResolve || scenarioToResolve.status === 'closed') return;
 
-    // Update scenario status
     const updatedScenarios = scenarios.map(s =>
       s.id === scenarioId
         ? { ...s, status: 'closed' as const, winningOptionIndex }
@@ -148,32 +187,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
     setScenarios(updatedScenarios);
 
-    // Payout winners
     const winningBets = bets.filter(b => b.scenarioId === scenarioId && b.optionIndex === winningOptionIndex);
     let totalWinnings = 0;
-    
+    let updatedUsers = [...users];
+
     winningBets.forEach(bet => {
         const odds = scenarioToResolve.options[bet.optionIndex].odds;
         const winnings = bet.amount * odds;
         totalWinnings += winnings;
-        // In a real app, you'd credit individual users. Here, we credit the single user's balance.
-        setBalance(prev => prev + winnings);
+
+        const winnerIndex = updatedUsers.findIndex(u => u.id === bet.userId);
+        if (winnerIndex !== -1) {
+            updatedUsers[winnerIndex] = {
+                ...updatedUsers[winnerIndex],
+                balance: updatedUsers[winnerIndex].balance + winnings
+            };
+        }
     });
+    
+    setUsers(updatedUsers);
+
+    if (currentUser) {
+        const updatedCurrentUser = updatedUsers.find(u => u.id === currentUser.id);
+        if (updatedCurrentUser) {
+            setCurrentUser(updatedCurrentUser);
+        }
+    }
 
     if (winningBets.length > 0) {
         toast({
-            title: 'Aleluia! Câștiguri Plătite!',
-            description: `S-au plătit ${totalWinnings.toFixed(2)} $ câștigătorilor credincioși.`
+            title: 'Diavolul își plătește datoriile!',
+            description: `S-au plătit ${totalWinnings.toFixed(2)} 魂 câștigătorilor.`
         });
     } else {
         toast({
             title: 'Scenariu Rezolvat',
-            description: `Rezultatul a fost decis. Nu au fost plasate pariuri câștigătoare pe acest rezultat.`
+            description: `Rezultatul a fost decis. Nu au existat câștigători de data aceasta.`
         });
     }
   };
+  
+  const balance = currentUser?.balance ?? 0;
 
-  const value = { balance, scenarios, bets, addScenario, placeBet, resolveScenario, addFunds };
+  const value = { users, currentUser, login, logout, appName, setAppName, balance, scenarios, bets, addScenario, placeBet, resolveScenario, addFunds };
 
   return (
     <AppContext.Provider value={value}>
