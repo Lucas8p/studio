@@ -62,7 +62,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
               <SidebarMenuButton asChild variant="ghost" isActive={pathname === '/'}>
                 <Link href="/">
                   <Home />
-                  Scenarii
+                  Pariuri
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

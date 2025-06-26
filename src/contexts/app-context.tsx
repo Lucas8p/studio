@@ -30,6 +30,7 @@ export type Bet = {
   optionIndex: number;
   amount: number;
   userId: string;
+  odds: number;
 };
 
 export type NewScenarioData = {
@@ -165,12 +166,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentUser(updatedUser);
     setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
 
+    const odds = scenario.options[optionIndex].odds;
+
     const newBet: Bet = {
       id: new Date().getTime().toString(),
       scenarioId,
       optionIndex,
       amount,
-      userId: currentUser.id
+      userId: currentUser.id,
+      odds
     };
     setBets(prev => [...prev, newBet]);
     toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} talanți pariați.` });
