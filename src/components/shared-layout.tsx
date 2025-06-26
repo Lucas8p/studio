@@ -110,7 +110,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r-0 bg-foreground text-background">
+      <Sidebar className="border-r-0 bg-secondary text-secondary-foreground">
         <SidebarHeader>
           <Logo appName={appName} slogan={slogan} />
         </SidebarHeader>
