@@ -37,6 +37,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
+import type { Pariu } from '@/contexts/app-context';
 
 const formSchema = z.object({
   title: z.string().min(10, {
@@ -53,13 +54,14 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl } = useApp();
+  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [newName, setNewName] = useState(appName);
   const [newSlogan, setNewSlogan] = useState(slogan);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [pariuToDelete, setPariuToDelete] = useState<Pariu | null>(null);
 
   const isPrimaryAdmin = currentUser?.id === users[0]?.id;
 
@@ -126,6 +128,13 @@ export default function AdminPage() {
       }
   }
 
+  const handleDeletePariu = () => {
+    if (pariuToDelete) {
+        deletePariu(pariuToDelete.id);
+        setPariuToDelete(null);
+    }
+  }
+
   const openPariuri = pariuri.filter(p => p.status === 'open');
 
   if (!currentUser?.isAdmin) {
@@ -169,6 +178,9 @@ export default function AdminPage() {
                   <Button onClick={() => handleResolve(pariu.id)} disabled={!selections[pariu.id]}>
                     Rezolvă
                   </Button>
+                   <Button variant="ghost" size="icon" onClick={() => setPariuToDelete(pariu)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                 </div>
               </div>
               {index < openPariuri.length - 1 && <Separator className="my-6"/>}
@@ -370,6 +382,26 @@ export default function AdminPage() {
             <AlertDialogCancel onClick={() => setUserToDelete(null)}>Anulează</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90">
                 Da, șterge utilizatorul
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+       <AlertDialog open={!!pariuToDelete} onOpenChange={(open) => !open && setPariuToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Ești absolut sigur?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Această acțiune nu poate fi anulată. Acest lucru va șterge definitiv pariul
+                <span className="font-bold"> "{pariuToDelete?.title}"</span>.
+                <br/><br/>
+                Nu puteți șterge un pariu pe care s-au plasat deja mize.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPariuToDelete(null)}>Anulează</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeletePariu} className="bg-destructive hover:bg-destructive/90">
+                Da, șterge pariul
             </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

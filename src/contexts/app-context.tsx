@@ -58,25 +58,26 @@ type AppContextType = {
   togglePactControl: () => void;
   toggleAdmin: (userId: string) => void;
   deleteUser: (userId: string) => void;
+  deletePariu: (pariuId: string) => void;
 };
 
 const initialPariuri: Pariu[] = [
   {
     id: '1',
-    title: 'Se vor vinde primele prăjiturile cu lămâie la târgul de prăjituri al bisericii?',
+    title: 'Iar ne ține mai mult Gabi Sere la predică?',
     options: [
-      { text: 'Da, prăjiturile cu lămâie!', odds: 1.8 },
-      { text: 'Nu, brioșele vor câștiga!', odds: 2.2 }
+      { text: 'Mai vreo oră sigur', odds: 4.0 },
+      { text: 'Doar 10 minute', odds: 2.5 },
+      { text: 'Nu, scăpăm repede', odds: 1.5 }
     ],
     status: 'open',
   },
   {
     id: '2',
-    title: 'Va depăși predica Pastorului John 15 minute?',
+    title: 'Va cânta corul "O, ce veste minunată!" și în iulie?',
     options: [
-        { text: 'Da, pregătiți-vă pentru prelungiri!', odds: 1.5 },
-        { text: 'Nu, va fi concis!', odds: 2.5 },
-        { text: 'Exact 15 minute!', odds: 5.0 }
+        { text: 'Da, e un clasic!', odds: 1.2 },
+        { text: 'Nu, schimbă repertoriul!', odds: 3.5 },
     ],
     status: 'open',
   },
@@ -249,6 +250,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
     }
   };
+
+  const deletePariu = (pariuId: string) => {
+    if (!currentUser?.isAdmin) {
+      toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorii pot șterge pariuri.' });
+      return;
+    }
+
+    const pariuToDelete = pariuri.find(p => p.id === pariuId);
+    if (!pariuToDelete) {
+      toast({ variant: 'destructive', title: 'Eroare', description: 'Pariul nu a fost găsit.' });
+      return;
+    }
+
+    const hasBetsPlaced = bets.some(bet => bet.pariuId === pariuId);
+    if (hasBetsPlaced) {
+      toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți șterge un pariu pe care s-au plasat deja mize. Rezolvați pariul în schimb.' });
+      return;
+    }
+
+    setPariuri(prev => prev.filter(p => p.id !== pariuId));
+    toast({ title: 'Pariu Șters', description: `Pariul "${pariuToDelete.title}" a fost șters cu succes.` });
+  };
   
   const balance = currentUser?.balance ?? 0;
 
@@ -288,7 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser };
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser, deletePariu };
 
   return (
     <AppContext.Provider value={value}>
