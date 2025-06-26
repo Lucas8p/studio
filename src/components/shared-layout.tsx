@@ -1,10 +1,9 @@
-
 "use client";
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet, History } from 'lucide-react';
+import { Home, LogOut, ShieldPlus, Wallet, History, Trophy } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -21,7 +20,6 @@ import { useApp } from '@/hooks/use-app';
 import { Logo } from '@/components/icons';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
-import { Leaderboard } from './leaderboard';
 
 export function SharedLayout({ children, title, showBalance = false }: { children: ReactNode, title: string, showBalance?: boolean }) {
   const { balance, currentUser, logout, appName, slogan } = useApp();
@@ -83,6 +81,14 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/leaderboard')}>
+                <Link href="/leaderboard">
+                  <Trophy />
+                  Clasament
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             {currentUser.isAdmin && (
                 <SidebarMenuItem>
                 <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin')}>
@@ -117,12 +123,9 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
             </div>
           )}
         </header>
-         <div className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_380px] gap-6 items-start">
-            <main className="w-full">{children}</main>
-            <aside className="hidden lg:block w-full">
-              <Leaderboard />
-            </aside>
-          </div>
+        <main className="flex-1 p-4 md:p-6">
+            {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
