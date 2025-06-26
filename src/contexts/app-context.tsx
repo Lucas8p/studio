@@ -136,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const updatedUser = { ...currentUser, balance: currentUser.balance + amount, hasMadePact: true };
       setCurrentUser(updatedUser);
       setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
-      toast({ title: 'Pact încheiat!', description: `Ai primit ${amount.toFixed(2)} talanți... dar cu ce preț?`});
+      toast({ title: 'Pact încheiat!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont, cu costul sufletului tău`});
     } else {
       if (amount <= 0) {
         toast({ variant: 'destructive', title: 'Ofertă invalidă', description: 'Trebuie să oferi o sumă validă.' });

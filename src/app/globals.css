@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
+    --background: 222 83% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
+    --card: 224 71% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
+    --popover: 222 83% 4%;
     --popover-foreground: 210 40% 98%;
     --primary: 263 70% 58%; /* mov */
     --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 25%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 185 90% 48%; /* turcoaz */
+    --accent: 263 70% 58%; /* mov */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 25%;
     --input: 217 33% 25%;
-    --ring: 185 90% 48%; /* turcoaz */
+    --ring: 263 70% 58%; /* mov */
     --chart-1: 280 80% 65%;
     --chart-2: 180 80% 50%;
     --chart-3: 30 80% 55%;
@@ -32,25 +32,25 @@
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 222 83% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
+    --card: 224 71% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
+    --popover: 222 83% 4%;
     --popover-foreground: 210 40% 98%;
     --primary: 263 70% 58%; /* mov */
     --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 25%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 185 90% 48%; /* turcoaz */
+    --accent: 263 70% 58%; /* mov */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 25%;
     --input: 217 33% 25%;
-    --ring: 185 90% 48%; /* turcoaz */
+    --ring: 263 70% 58%; /* mov */
     --chart-1: 280 80% 65%;
     --chart-2: 180 80% 50%;
     --chart-3: 30 80% 55%;

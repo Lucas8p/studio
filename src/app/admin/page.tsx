@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { PlusCircle, Trash2, Settings, Dices, Skull, ShieldCheck, ShieldX, UserX } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -247,7 +247,6 @@ export default function AdminPage() {
                   Adaugă Opțiune
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  <Dices className="mr-2 h-4 w-4" />
                   {isSubmitting ? 'Se adaugă...' : 'Adaugă Pariu'}
                 </Button>
               </div>

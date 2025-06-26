@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, Infinity } from 'lucide-react';
+import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, Sparkles } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -140,7 +140,6 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
                 {balance.toFixed(2)}
                 <span className="hidden sm:inline"> talanți</span>
                 <span className="sm:hidden"> T</span>
-                <Infinity className="h-4 w-4 text-primary" />
               </span>
             </div>
           )}
