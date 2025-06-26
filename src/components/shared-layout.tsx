@@ -134,12 +134,12 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
             <h1 className="truncate text-lg font-semibold font-headline sm:text-xl">{title}</h1>
           </div>
           {showBalance && (
-            <div className="flex-shrink-0 font-semibold whitespace-nowrap text-right text-sm sm:text-base md:text-lg">
+            <div className="flex-shrink-0 font-semibold text-right text-sm sm:text-base md:text-lg">
               <span className="hidden sm:inline">Balanță: </span>
               <span className="font-bold font-headline text-accent-foreground">
                 {balance.toFixed(2)}
                 <span className="hidden sm:inline"> talanți</span>
-                <span className="sm:hidden"> T</span>
+                <span className="sm:hidden"> talanți</span>
               </span>
             </div>
           )}
