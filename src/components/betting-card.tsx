@@ -1,13 +1,13 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/hooks/use-app';
 import type { Scenario } from '@/contexts/app-context';
-import { HandCoins, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { HandCoins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface BettingCardProps {
@@ -19,7 +19,6 @@ export function BettingCard({ scenario }: BettingCardProps) {
   const [amount, setAmount] = useState<number | ''>('');
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const { toast } = useToast();
 
   const handlePlaceBet = () => {
@@ -35,41 +34,19 @@ export function BettingCard({ scenario }: BettingCardProps) {
        toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'You do not have enough balance to place this bet.' });
       return;
     }
-
-    setIsProcessing(true);
-    placeBet(scenario.id, selectedOption, amount);
     
-    // Simulate result and animation
-    setTimeout(() => {
-        if(scenario.outcome === selectedOption) {
-            setShowCelebration(true);
-        }
-      setIsProcessing(false);
-      setSelectedOption(null);
-      setAmount('');
-    }, 3000);
-  };
-  
-  useEffect(() => {
-    if (showCelebration) {
-      const timer = setTimeout(() => setShowCelebration(false), 2000);
-      return () => clearTimeout(timer);
+    setIsProcessing(true);
+    try {
+        placeBet(scenario.id, selectedOption, amount);
+        setSelectedOption(null);
+        setAmount('');
+    } finally {
+        setIsProcessing(false);
     }
-  }, [showCelebration]);
+  };
 
   return (
     <Card className="flex flex-col relative overflow-hidden transition-all hover:shadow-lg">
-      {showCelebration && Array.from({ length: 10 }).map((_, i) => (
-        <Star 
-          key={i} 
-          className="sparkle-animation"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 0.5}s`,
-          }} 
-        />
-      ))}
       <CardHeader>
         <CardTitle className="font-headline text-lg leading-tight">{scenario.title}</CardTitle>
         <CardDescription className="pt-2">{scenario.description}</CardDescription>
@@ -81,10 +58,11 @@ export function BettingCard({ scenario }: BettingCardProps) {
               key={index}
               variant={selectedOption === index ? 'default' : 'secondary'}
               onClick={() => setSelectedOption(index)}
-              className="h-auto py-2 whitespace-normal text-sm"
+              className="h-auto py-2 whitespace-normal text-sm flex-col"
               disabled={isProcessing}
             >
-              {option}
+              <span>{option.text}</span>
+              <span className="text-xs opacity-80">(Odds: {option.odds.toFixed(2)})</span>
             </Button>
           ))}
         </div>

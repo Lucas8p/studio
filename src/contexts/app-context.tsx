@@ -1,29 +1,43 @@
 
 "use client";
 
-import React, { createContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useState, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
+
+export type ScenarioOption = {
+  text: string;
+  odds: number;
+};
 
 export type Scenario = {
   id: string;
   title: string;
   description: string;
-  options: [string, string];
-  outcome?: number; // 0 for option 1, 1 for option 2
+  options: ScenarioOption[];
+  winningOptionIndex?: number;
+  status: 'open' | 'closed';
 };
 
-type NewScenarioData = {
+export type Bet = {
+  id: string;
+  scenarioId: string;
+  optionIndex: number;
+  amount: number;
+};
+
+export type NewScenarioData = {
   title: string;
-  option1: string;
-  option2: string;
-}
+  options: { text: string; odds: string }[];
+};
 
 type AppContextType = {
   balance: number;
   scenarios: Scenario[];
+  bets: Bet[];
   addScenario: (data: NewScenarioData) => Promise<void>;
   placeBet: (scenarioId: string, optionIndex: number, amount: number) => void;
+  resolveScenario: (scenarioId: string, winningOptionIndex: number) => void;
+  addFunds: (amount: number) => void;
 };
 
 const initialScenarios: Scenario[] = [
@@ -31,22 +45,33 @@ const initialScenarios: Scenario[] = [
     id: '1',
     title: 'Will the church bake sale sell out of lemon bars first?',
     description: 'The annual bake sale is here! Agnes brings her legendary lemon bars, but Martha\'s magnificent muffins are also on the table. The tension is palpable. Where will the congregation flock first?',
-    options: ['Yes, lemon bars reign supreme!', 'No, muffins will triumph!'],
-    outcome: 0,
+    options: [
+      { text: 'Yes, lemon bars!', odds: 1.8 },
+      { text: 'No, muffins will win!', odds: 2.2 }
+    ],
+    status: 'open',
   },
   {
     id: '2',
     title: 'Will Pastor John\'s sermon go over 15 minutes?',
     description: 'Pastor John is known for his passionate and sometimes lengthy sermons. He promised to keep it brief this Sunday, but the spirit might move him. Will he stick to the schedule?',
-    options: ['Yes, prepare for overtime!', 'No, he\'ll be concise!'],
-    outcome: 1,
+    options: [
+        { text: 'Yes, prepare for overtime!', odds: 1.5 },
+        { text: 'No, he\'ll be concise!', odds: 2.5 },
+        { text: 'Exactly 15 minutes!', odds: 5.0 }
+    ],
+    status: 'open',
   },
   {
     id: '3',
     title: 'Will the youth group\'s car wash successfully clean a muddy tractor?',
     description: 'The youth group is washing cars for charity. Farmer McGregor just pulled up in his mud-caked tractor. Can their youthful exuberance conquer this colossal cleaning challenge?',
-    options: ['Yes, they have the power!', 'No, the mud is eternal!'],
-    outcome: 0,
+    options: [
+        { text: 'Yes, they have the power!', odds: 1.3 },
+        { text: 'No, the mud is eternal!', odds: 3.0 }
+    ],
+    status: 'closed',
+    winningOptionIndex: 0,
   }
 ];
 
@@ -64,7 +89,18 @@ export const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [balance, setBalance] = useState(1000);
   const [scenarios, setScenarios] = useState<Scenario[]>(initialScenarios);
+  const [bets, setBets] = useState<Bet[]>([]);
   const { toast } = useToast();
+
+  const addFunds = (amount: number) => {
+    if (amount > 0) {
+      setBalance(prev => prev + amount);
+      toast({
+        title: 'Funds Added!',
+        description: `Successfully added $${amount.toFixed(2)} to your balance.`
+      });
+    }
+  };
 
   const addScenario = async (data: NewScenarioData) => {
     const description = await generateDescription(data.title);
@@ -72,43 +108,72 @@ export function AppProvider({ children }: { children: ReactNode }) {
       id: new Date().getTime().toString(),
       title: data.title,
       description: description,
-      options: [data.option1, data.option2],
-      outcome: Math.round(Math.random()),
+      options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
+      status: 'open',
     };
     setScenarios(prev => [newScenario, ...prev]);
   };
 
   const placeBet = (scenarioId: string, optionIndex: number, amount: number) => {
+    const scenario = scenarios.find(s => s.id === scenarioId);
+    if (!scenario || scenario.status === 'closed') {
+        toast({ variant: 'destructive', title: 'Betting Closed', description: 'This scenario is no longer open for betting.' });
+        return;
+    }
     if (amount > balance) {
       toast({ variant: 'destructive', title: 'A Test of Prudence', description: 'Your funds are low. Perhaps a smaller leap of faith is in order?' });
       return;
     }
 
     setBalance(prev => prev - amount);
-    toast({ title: 'Bet Placed!', description: `You've put your faith in it! $${amount} wagered. May fortune favor you!` });
-
-    setTimeout(() => {
-      const scenario = scenarios.find(s => s.id === scenarioId);
-      if (scenario) {
-        if (scenario.outcome === optionIndex) {
-          const winnings = amount * 1.5;
-          setBalance(prev => prev + winnings);
-          toast({
-            title: 'Hallelujah! You Won!',
-            description: `The heavens smile upon you! You won $${winnings.toFixed(2)}.`,
-          });
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Have Faith!',
-            description: `The Lord works in mysterious ways. You lost $${amount}, but not your spirit!`,
-          });
-        }
-      }
-    }, 3000);
+    const newBet: Bet = {
+      id: new Date().getTime().toString(),
+      scenarioId,
+      optionIndex,
+      amount
+    };
+    setBets(prev => [...prev, newBet]);
+    toast({ title: 'Bet Placed!', description: `You've put your faith in it! $${amount} wagered.` });
   };
 
-  const value = { balance, scenarios, addScenario, placeBet };
+  const resolveScenario = (scenarioId: string, winningOptionIndex: number) => {
+    const scenarioToResolve = scenarios.find(s => s.id === scenarioId);
+    if (!scenarioToResolve || scenarioToResolve.status === 'closed') return;
+
+    // Update scenario status
+    const updatedScenarios = scenarios.map(s =>
+      s.id === scenarioId
+        ? { ...s, status: 'closed' as const, winningOptionIndex }
+        : s
+    );
+    setScenarios(updatedScenarios);
+
+    // Payout winners
+    const winningBets = bets.filter(b => b.scenarioId === scenarioId && b.optionIndex === winningOptionIndex);
+    let totalWinnings = 0;
+    
+    winningBets.forEach(bet => {
+        const odds = scenarioToResolve.options[bet.optionIndex].odds;
+        const winnings = bet.amount * odds;
+        totalWinnings += winnings;
+        // In a real app, you'd credit individual users. Here, we credit the single user's balance.
+        setBalance(prev => prev + winnings);
+    });
+
+    if (winningBets.length > 0) {
+        toast({
+            title: 'Hallelujah! Winnings Paid!',
+            description: `Paid out $${totalWinnings.toFixed(2)} to the faithful winners.`
+        });
+    } else {
+        toast({
+            title: 'Scenario Resolved',
+            description: `The outcome has been decided. No winning bets were placed on this outcome.`
+        });
+    }
+  };
+
+  const value = { balance, scenarios, bets, addScenario, placeBet, resolveScenario, addFunds };
 
   return (
     <AppContext.Provider value={value}>
