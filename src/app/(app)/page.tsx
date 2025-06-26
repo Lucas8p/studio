@@ -1,13 +1,43 @@
 
 "use client";
 
+import Link from 'next/link';
 import { useApp } from '@/hooks/use-app';
 import { BettingCard } from '@/components/betting-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, XCircle, Hourglass } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2, XCircle, Hourglass, Skull } from 'lucide-react';
+
+function PactAdvertisement() {
+  const { currentUser, pactControlEnabled } = useApp();
+
+  if (!pactControlEnabled || !currentUser || currentUser.hasMadePact) {
+    return null;
+  }
+
+  return (
+    <Card className="mb-6 bg-destructive/5 border-destructive/20 shadow-lg shadow-destructive/10">
+      <CardHeader className="flex-row items-center gap-4 pb-4">
+        <Skull className="h-12 w-12 flex-shrink-0 text-destructive animate-pulse" />
+        <div>
+          <CardTitle className="font-headline text-xl text-destructive">O Ofertă de Nerefuzat</CardTitle>
+          <CardDescription className="text-destructive/80">Fonduri limitate? O singură dată, poți încheia un pact pentru avere instantanee.</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="pb-4">
+         <Button asChild className="w-full" variant="destructive">
+            <Link href="/profile">
+                <Skull className="mr-2 h-4 w-4" />
+                Primește 666 Talanți Acum
+            </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function HomePage() {
   const { pariuri, bets, currentUser } = useApp();
@@ -41,6 +71,7 @@ export default function HomePage() {
       <TabsContent value="available">
         <ScrollArea className="h-[calc(100vh-12rem)]">
           <div className="p-1 pt-4">
+            <PactAdvertisement />
             {openPariuri.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
                 Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
