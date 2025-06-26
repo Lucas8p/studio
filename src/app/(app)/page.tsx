@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Hourglass, Skull } from 'lucide-react';
+import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles } from 'lucide-react';
 
 function PactAdvertisement() {
   const { currentUser, pactControlEnabled } = useApp();
@@ -30,10 +30,26 @@ function PactAdvertisement() {
          <Button asChild className="w-full" variant="destructive">
             <Link href="/profile">
                 <Skull className="mr-2 h-4 w-4" />
-                Primește 666 Talanți Acum
+                Primește 666 T
             </Link>
         </Button>
       </CardContent>
+    </Card>
+  );
+}
+
+function FaithAdvertisement() {
+  return (
+    <Card className="mb-6 border-primary/30 bg-primary/10">
+      <CardHeader className="flex-row items-center gap-4 pb-4">
+        <Sparkles className="h-8 w-8 flex-shrink-0 text-primary animate-pulse" />
+        <div>
+          <CardTitle className="text-lg text-primary">Un Test de Credință</CardTitle>
+          <CardDescription className="text-primary/80">
+            Domnul este cu tine, viteazule! Testează-ți credința și norocul cu un pariu la cele mai bune cote cerești de pe piață.
+          </CardDescription>
+        </div>
+      </CardHeader>
     </Card>
   );
 }
@@ -71,6 +87,7 @@ export default function HomePage() {
         <ScrollArea className="h-[calc(100vh-12rem)]">
           <div className="p-1 pt-4">
             <PactAdvertisement />
+            <FaithAdvertisement />
             {openPariuri.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
                 Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
