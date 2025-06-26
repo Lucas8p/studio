@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/hooks/use-app';
@@ -52,6 +52,7 @@ export function BettingCard({ pariu }: BettingCardProps) {
     <Card className="flex flex-col relative overflow-hidden transition-all hover:shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-lg leading-tight">{pariu.title}</CardTitle>
+        <CardDescription className="pt-2 text-sm">{pariu.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
         <div className="grid grid-cols-2 gap-2">

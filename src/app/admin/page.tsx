@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -38,12 +38,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import type { Pariu } from '@/contexts/app-context';
+import { generateBetDescription } from '@/ai/flows/generate-bet-description';
 
 const formSchema = z.object({
   title: z.string().min(10, {
     message: "Titlul trebuie să aibă cel puțin 10 caractere.",
   }).max(100, {
     message: "Titlul nu trebuie să depășească 100 de caractere.",
+  }),
+  description: z.string().min(10, {
+    message: "Descrierea trebuie să aibă cel puțin 10 caractere.",
   }),
   options: z.array(z.object({
     text: z.string().min(2, "Textul opțiunii trebuie să aibă cel puțin 2 caractere.").max(50, "Textul opțiunii nu trebuie să depășească 50 de caractere."),
@@ -57,6 +61,7 @@ export default function AdminPage() {
   const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [newName, setNewName] = useState(appName);
   const [newSlogan, setNewSlogan] = useState(slogan);
@@ -69,6 +74,7 @@ export default function AdminPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      description: "",
       options: [{ text: "", odds: "" }, { text: "", odds: "" }],
     },
   });
@@ -77,6 +83,39 @@ export default function AdminPage() {
     control: form.control,
     name: "options"
   });
+  
+  const handleGenerateDescription = async () => {
+    const title = form.getValues('title');
+    const options = form.getValues('options').filter(o => o.text && o.odds); // Filter out empty options
+    
+    // Trigger validation for title and options to show errors if they are invalid
+    const isTitleValid = await form.trigger('title');
+    const areOptionsValid = await form.trigger('options');
+
+    if (!isTitleValid || !areOptionsValid || options.length < 2) {
+        toast({
+            variant: "destructive",
+            title: "Date incomplete",
+            description: "Te rog completează un titlu și cel puțin două opțiuni valide înainte de a genera descrierea.",
+        });
+        return;
+    }
+    
+    setIsGenerating(true);
+    try {
+        const result = await generateBetDescription({ title, options });
+        if (result) {
+            form.setValue('description', result, { shouldValidate: true });
+        } else {
+            toast({ variant: 'destructive', title: 'Generare eșuată', description: 'AI-ul nu a putut genera o descriere. Încearcă din nou.' });
+        }
+    } catch (error) {
+        console.error("Error generating description:", error);
+        toast({ variant: 'destructive', title: 'Eroare de la AI', description: 'A apărut o eroare la generarea descrierii.' });
+    } finally {
+        setIsGenerating(false);
+    }
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -87,6 +126,7 @@ export default function AdminPage() {
     });
     form.reset({
       title: "",
+      description: "",
       options: [{ text: "", odds: "" }, { text: "", odds: "" }],
     });
     setIsSubmitting(false);
@@ -209,6 +249,24 @@ export default function AdminPage() {
                     <FormLabel>Titlu Pariu</FormLabel>
                     <FormControl>
                       <Textarea placeholder="ex., Vor fi noile culori ale robelor corului un succes ceresc?" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between mb-2">
+                        <FormLabel>Descriere</FormLabel>
+                        <Button type="button" variant="outline" size="sm" onClick={handleGenerateDescription} disabled={isGenerating}>
+                            {isGenerating ? 'Se generează...' : <><Sparkles className="mr-2 h-4 w-4" /> Generează cu AI</>}
+                        </Button>
+                    </div>
+                    <FormControl>
+                      <Textarea rows={4} placeholder="Descrie pariul într-un mod captivant sau generează automat folosind AI." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

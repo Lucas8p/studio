@@ -19,6 +19,7 @@ export type PariuOption = {
 export type Pariu = {
   id: string;
   title: string;
+  description: string;
   options: PariuOption[];
   winningOptionIndex?: number;
   status: 'open' | 'closed';
@@ -35,6 +36,7 @@ export type Bet = {
 
 export type NewPariuData = {
   title: string;
+  description: string;
   options: { text: string; odds: string }[];
 };
 
@@ -65,6 +67,7 @@ const initialPariuri: Pariu[] = [
   {
     id: '1',
     title: 'Iar ne ține mai mult Gabi Sere la predică?',
+    description: "Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta amiezii tale stă în cumpănă.",
     options: [
       { text: 'Mai vreo oră sigur', odds: 4.0 },
       { text: 'Doar 10 minute', odds: 2.5 },
@@ -75,6 +78,7 @@ const initialPariuri: Pariu[] = [
   {
     id: '2',
     title: 'Cântă Revive și anul ăsta "Voi cânta bunătatea Ta" sau nu?',
+    description: "Un imn clasic, o trupă legendară. Vor ceda cei de la Revive ispitei de a reaprinde flacăra nostalgiei sau vor alege o cale nouă, necartografiată? Alege cu înțelepciune.",
     options: [
         { text: 'Da, mai merge forjată umpic', odds: 1.7 },
         { text: 'Nu că s-au plictisit și ei de ea', odds: 2.1 },
@@ -84,6 +88,7 @@ const initialPariuri: Pariu[] = [
   {
     id: '3',
     title: 'Va reuși spălătoria auto a grupului de tineri să curețe un tractor noroios?',
+    description: "Tinerii se luptă cu forțele pământului. Va triumfa spuma activă împotriva noroiului ancestral sau va rămâne tractorul un monument al muncii de la câmp? Credința ta poate înclina balanța.",
     options: [
         { text: 'Da, ei au puterea!', odds: 1.3 },
         { text: 'Nu, noroiul este veșnic!', odds: 3.0 }
@@ -154,6 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const newPariu: Pariu = {
       id: new Date().getTime().toString(),
       title: data.title,
+      description: data.description,
       options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
       status: 'open',
     };
