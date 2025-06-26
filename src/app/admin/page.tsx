@@ -76,9 +76,9 @@ export default function AdminPage() {
     name: "options"
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    await addPariu(values);
+    addPariu(values);
     toast({
       title: "S-a scris!",
       description: "Un nou pariu a fost creat și este deschis pentru credincioși.",
@@ -183,7 +183,7 @@ export default function AdminPage() {
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Adaugă Pariu Nou</CardTitle>
           <CardDescription>
-            Creează un nou pariu distractiv cu multiple opțiuni și cote. O descriere amuzantă va fi generată de AI.
+            Creează un nou pariu distractiv cu multiple opțiuni și cote.
           </CardDescription>
         </CardHeader>
         <CardContent>

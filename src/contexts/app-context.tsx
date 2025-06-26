@@ -3,7 +3,6 @@
 
 import React, { createContext, useState, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { generateBetDescription } from '@/ai/flows/generate-bet-description';
 
 export type User = {
   id: string; // username
@@ -20,7 +19,6 @@ export type PariuOption = {
 export type Pariu = {
   id: string;
   title: string;
-  description: string;
   options: PariuOption[];
   winningOptionIndex?: number;
   status: 'open' | 'closed';
@@ -52,7 +50,7 @@ type AppContextType = {
   balance: number;
   pariuri: Pariu[];
   bets: Bet[];
-  addPariu: (data: NewPariuData) => Promise<void>;
+  addPariu: (data: NewPariuData) => void;
   placeBet: (pariuId: string, optionIndex: number, amount: number) => void;
   resolvePariu: (pariuId: string, winningOptionIndex: number) => void;
   addFunds: (amount: number) => void;
@@ -66,7 +64,6 @@ const initialPariuri: Pariu[] = [
   {
     id: '1',
     title: 'Se vor vinde primele prăjiturile cu lămâie la târgul de prăjituri al bisericii?',
-    description: 'Târgul anual de prăjituri a sosit! Agnes aduce legendarele ei prăjituri cu lămâie, dar și brioșele magnifice ale Marthei sunt pe masă. Tensiunea este palpabilă. Unde se va îndrepta prima dată congregația?',
     options: [
       { text: 'Da, prăjiturile cu lămâie!', odds: 1.8 },
       { text: 'Nu, brioșele vor câștiga!', odds: 2.2 }
@@ -76,7 +73,6 @@ const initialPariuri: Pariu[] = [
   {
     id: '2',
     title: 'Va depăși predica Pastorului John 15 minute?',
-    description: 'Pastorul John este cunoscut pentru predicile sale pasionale și uneori lungi. A promis să fie scurt duminica aceasta, dar duhul s-ar putea să-l miște. Se va ține de program?',
     options: [
         { text: 'Da, pregătiți-vă pentru prelungiri!', odds: 1.5 },
         { text: 'Nu, va fi concis!', odds: 2.5 },
@@ -87,7 +83,6 @@ const initialPariuri: Pariu[] = [
   {
     id: '3',
     title: 'Va reuși spălătoria auto a grupului de tineri să curețe un tractor noroios?',
-    description: 'Grupul de tineri spală mașini pentru caritate. Fermierul McGregor tocmai a sosit cu tractorul său acoperit de noroi. Poate exuberanța lor tinerească să învingă această provocare colosală de curățenie?',
     options: [
         { text: 'Da, ei au puterea!', odds: 1.3 },
         { text: 'Nu, noroiul este veșnic!', odds: 3.0 }
@@ -154,12 +149,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addPariu = async (data: NewPariuData) => {
-    const description = await generateBetDescription(data);
+  const addPariu = (data: NewPariuData) => {
     const newPariu: Pariu = {
       id: new Date().getTime().toString(),
       title: data.title,
-      description: description,
       options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
       status: 'open',
     };
@@ -179,6 +172,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (amount > currentUser.balance) {
       toast({ variant: 'destructive', title: 'Un Test de Prudență', description: 'Fondurile tale sunt scăzute. Poate un salt de credință mai mic este indicat?' });
+      return;
+    }
+    
+    const userHasBetOnThis = bets.some(b => b.pariuId === pariuId && b.userId === currentUser.id);
+    if (userHasBetOnThis) {
+      toast({ variant: 'destructive', title: 'Pariu Duplicat', description: 'Ai pariat deja pe acest eveniment.' });
       return;
     }
 
