@@ -39,14 +39,14 @@ export default function HomePage() {
       </TabsList>
 
       <TabsContent value="available">
-        <ScrollArea className="h-[calc(100vh-10rem)]">
+        <ScrollArea className="h-[calc(100vh-12rem)]">
           <div className="p-1 pt-4">
             {openPariuri.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
                 Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
                 {openPariuri.map(pariu => (
                   <BettingCard key={pariu.id} pariu={pariu} />
                 ))}
@@ -57,14 +57,14 @@ export default function HomePage() {
       </TabsContent>
 
       <TabsContent value="active">
-        <ScrollArea className="h-[calc(100vh-10rem)]">
+        <ScrollArea className="h-[calc(100vh-12rem)]">
            <div className="p-1 pt-4">
             {activeUserBetsData.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
                 Nu aveți niciun pariu activ. Plasați un pariu din secțiunea "Pariuri Disponibile".
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+             <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
                 {activeUserBetsData.map(({ bet, pariu }) => (
                   <Card key={bet.id}>
                     <CardHeader>
@@ -90,14 +90,14 @@ export default function HomePage() {
       </TabsContent>
       
       <TabsContent value="past">
-         <ScrollArea className="h-[calc(100vh-10rem)]">
+         <ScrollArea className="h-[calc(100vh-12rem)]">
            <div className="p-1 pt-4">
             {pastUserBetsData.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
                 Nu aveți pariuri încheiate.
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+             <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
                 {pastUserBetsData.map(({ bet, pariu }) => {
                   const isWin = pariu.winningOptionIndex === bet.optionIndex;
                   const winnings = bet.amount * bet.odds;

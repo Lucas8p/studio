@@ -4,7 +4,7 @@ import { SharedLayout } from '@/components/shared-layout';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <SharedLayout title="Panou Admin">
+    <SharedLayout title="Panou Admin" showBalance={false}>
       {children}
     </SharedLayout>
   );

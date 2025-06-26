@@ -21,9 +21,10 @@ import { useApp } from '@/hooks/use-app';
 import { Logo } from '@/components/icons';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { Leaderboard } from './leaderboard';
 
 export function SharedLayout({ children, title, showBalance = false }: { children: ReactNode, title: string, showBalance?: boolean }) {
-  const { balance, currentUser, logout, appName } = useApp();
+  const { balance, currentUser, logout, appName, slogan } = useApp();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -54,7 +55,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
     <SidebarProvider>
       <Sidebar className="border-r-0 bg-foreground text-background">
         <SidebarHeader>
-          <Logo appName={appName} />
+          <Logo appName={appName} slogan={slogan} />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -116,7 +117,12 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
             </div>
           )}
         </header>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+         <div className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_380px] gap-6 items-start">
+            <main className="w-full">{children}</main>
+            <aside className="hidden lg:block w-full">
+              <Leaderboard />
+            </aside>
+          </div>
       </SidebarInset>
     </SidebarProvider>
   );

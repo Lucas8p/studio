@@ -8,10 +8,10 @@ import { useApp } from '@/hooks/use-app';
 import { useEffect } from 'react';
 
 function AppTitleUpdater() {
-  const { appName } = useApp();
+  const { appName, slogan } = useApp();
   useEffect(() => {
-    document.title = `${appName} - Pariază cu credință`;
-  }, [appName]);
+    document.title = `${appName} - ${slogan}`;
+  }, [appName, slogan]);
   return null;
 }
 

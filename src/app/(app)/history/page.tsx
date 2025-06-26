@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle2, XCircle, Hourglass } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function HistoryPage() {
     const { bets, pariuri, currentUser } = useApp();
@@ -14,15 +15,15 @@ export default function HistoryPage() {
     const userBets = bets.filter(bet => bet.userId === currentUser.id).sort((a, b) => parseInt(b.id) - parseInt(a.id));
 
     return (
-        <div className="max-w-4xl mx-auto">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Istoric Analitic</CardTitle>
-                    <CardDescription>O privire detaliată asupra tuturor pariurilor tale, trecute și prezente.</CardDescription>
-                </CardHeader>
-                <CardContent>
+        <Card>
+            <CardHeader>
+                <CardTitle>Istoric Analitic</CardTitle>
+                <CardDescription>O privire detaliată asupra tuturor pariurilor tale, trecute și prezente.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ScrollArea className="h-[calc(100vh-15rem)]">
                     <Table>
-                        <TableHeader>
+                        <TableHeader className="sticky top-0 bg-card">
                             <TableRow>
                                 <TableHead>Pariu</TableHead>
                                 <TableHead>Pariul Tău</TableHead>
@@ -66,8 +67,8 @@ export default function HistoryPage() {
                             )}
                         </TableBody>
                     </Table>
-                </CardContent>
-            </Card>
-        </div>
+                 </ScrollArea>
+            </CardContent>
+        </Card>
     );
 }

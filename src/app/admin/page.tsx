@@ -20,10 +20,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { PlusCircle, Trash2, Settings } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Swords, Skull } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   title: z.string().min(10, {
@@ -40,11 +41,12 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { pariuri, addPariu, resolvePariu, appName, setAppName, currentUser } = useApp();
+  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, pactControlEnabled, togglePactControl } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [newName, setNewName] = useState(appName);
+  const [newSlogan, setNewSlogan] = useState(slogan);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,12 +86,23 @@ export default function AdminPage() {
     toast({ title: "Pariu Rezolvat!", description: "Rezultatul a fost decis și câștigătorii (dacă există) au fost plătiți." });
   };
 
-  const handleNameChange = () => {
+  const handleSettingsSave = () => {
     if (newName.trim()) {
         setAppName(newName.trim());
-        toast({ title: "Numele a fost schimbat", description: `Platforma se numește acum "${newName.trim()}".` });
     }
+    if (newSlogan.trim()) {
+        setSlogan(newSlogan.trim());
+    }
+    toast({ title: "Setări salvate", description: `Numele și sloganul platformei au fost actualizate.` });
   };
+  
+  const handlePactToggle = () => {
+    togglePactControl();
+    toast({
+      title: `Modul Pact a fost ${!pactControlEnabled ? 'activat' : 'dezactivat'}`,
+      description: !pactControlEnabled ? 'Utilizatorii pot face pactul o singură dată pentru 666 talanți.' : 'Utilizatorii pot adăuga fonduri liber.'
+    })
+  }
 
   const openPariuri = pariuri.filter(p => p.status === 'open');
 
@@ -107,31 +120,60 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-8">
        <Card>
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Setări Generale</CardTitle>
             <CardDescription>
-                Modifică numele și alte setări ale platformei.
+                Modifică numele și sloganul platformei.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
               <div className="space-y-2">
                   <Label htmlFor="appName">Numele Platformei</Label>
-                  <div className="flex gap-2">
-                        <Input
-                          id="appName"
-                          value={newName}
-                          onChange={(e) => setNewName(e.target.value)}
-                      />
-                      <Button onClick={handleNameChange}>
-                          <Settings className="mr-2 h-4 w-4" />
-                          Salvează
-                      </Button>
-                  </div>
+                  <Input
+                    id="appName"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                  />
               </div>
+               <div className="space-y-2">
+                  <Label htmlFor="appSlogan">Sloganul Platformei</Label>
+                  <Input
+                    id="appSlogan"
+                    value={newSlogan}
+                    onChange={(e) => setNewSlogan(e.target.value)}
+                  />
+              </div>
+              <Button onClick={handleSettingsSave}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Salvează Setările
+              </Button>
           </CardContent>
       </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline text-2xl">Controlul Pactului</CardTitle>
+            <CardDescription>Gestionează modul în care utilizatorii pot adăuga fonduri.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="flex items-center space-x-4 rounded-md border p-4">
+                <Skull />
+                <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium leading-none">Mod Pact Unic (666 Talanți)</p>
+                    <p className="text-sm text-muted-foreground">
+                        Dacă este activat, fiecare utilizator poate face pactul o singură dată pentru a primi exact 666 talanți.
+                    </p>
+                </div>
+                <Switch
+                    checked={pactControlEnabled}
+                    onCheckedChange={handlePactToggle}
+                />
+            </div>
+        </CardContent>
+      </Card>
+
 
       <Card>
         <CardHeader>
@@ -201,7 +243,8 @@ export default function AdminPage() {
                   Adaugă Opțiune
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Se adaugă...' : 'Adaugă Pariu cu AI'}
+                  <Swords className="mr-2 h-4 w-4" />
+                  {isSubmitting ? 'Se adaugă...' : 'Adaugă Pariu'}
                 </Button>
               </div>
             </form>

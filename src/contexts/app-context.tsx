@@ -8,6 +8,7 @@ export type User = {
   id: string; // username
   balance: number;
   isAdmin: boolean;
+  hasMadePact: boolean;
 };
 
 export type PariuOption = {
@@ -45,6 +46,8 @@ type AppContextType = {
   logout: () => void;
   appName: string;
   setAppName: (name: string) => void;
+  slogan: string;
+  setSlogan: (slogan: string) => void;
   balance: number;
   pariuri: Pariu[];
   bets: Bet[];
@@ -52,6 +55,8 @@ type AppContextType = {
   placeBet: (pariuId: string, optionIndex: number, amount: number) => void;
   resolvePariu: (pariuId: string, winningOptionIndex: number) => void;
   addFunds: (amount: number) => void;
+  pactControlEnabled: boolean;
+  togglePactControl: () => void;
 };
 
 const initialPariuri: Pariu[] = [
@@ -106,13 +111,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [pariuri, setPariuri] = useState<Pariu[]>(initialPariuri);
   const [bets, setBets] = useState<Bet[]>([]);
   const [appName, setAppName] = useState('FaithBet');
+  const [slogan, setSlogan] = useState('Pariază cu credință');
+  const [pactControlEnabled, setPactControlEnabled] = useState(false);
   const { toast } = useToast();
 
   const login = (username: string) => {
     let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
     if (!user) {
       const isAdmin = users.length === 0;
-      user = { id: username, balance: 1000, isAdmin };
+      user = { id: username, balance: 1000, isAdmin, hasMadePact: false };
       setUsers(prev => [...prev, user!]);
       toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
     } else {
@@ -127,10 +134,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addFunds = (amount: number) => {
     if (!currentUser) return;
-    if (amount > 0) {
+    
+    if (pactControlEnabled) {
+      if (currentUser.hasMadePact) {
+        toast({ variant: 'destructive', title: 'Pact deja încheiat', description: 'Ai făcut deja pactul o dată. Lăcomia este un păcat.' });
+        return;
+      }
+      if (amount !== 666) {
+        toast({ variant: 'destructive', title: 'Ofertă respinsă', description: 'Lordul Întunericului acceptă doar ofranda standard de 666 de talanți.' });
+        return;
+      }
+      const updatedUser = { ...currentUser, balance: currentUser.balance + amount, hasMadePact: true };
+      setCurrentUser(updatedUser);
+      setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+      toast({ title: 'Pact încheiat!', description: `Ai primit ${amount.toFixed(2)} talanți... dar cu ce preț?`});
+    } else {
+      if (amount <= 0) {
+        toast({ variant: 'destructive', title: 'Ofertă invalidă', description: 'Trebuie să oferi o sumă validă.' });
+        return;
+      }
       const updatedUser = { ...currentUser, balance: currentUser.balance + amount };
       setCurrentUser(updatedUser);
       setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+      toast({ title: 'Fonduri adăugate!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont.`});
     }
   };
 
@@ -233,7 +259,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   const balance = currentUser?.balance ?? 0;
 
-  const value = { users, currentUser, login, logout, appName, setAppName, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds };
+  const togglePactControl = () => {
+    setPactControlEnabled(prev => !prev);
+  }
+
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl };
 
   return (
     <AppContext.Provider value={value}>
