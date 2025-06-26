@@ -57,6 +57,8 @@ type AppContextType = {
   addFunds: (amount: number) => void;
   pactControlEnabled: boolean;
   togglePactControl: () => void;
+  toggleAdmin: (userId: string) => void;
+  deleteUser: (userId: string) => void;
 };
 
 const initialPariuri: Pariu[] = [
@@ -118,7 +120,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const login = (username: string) => {
     let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
     if (!user) {
-      const isAdmin = users.length === 0;
+      const isAdmin = users.length === 0; // First user is always the primary admin
       user = { id: username, balance: 1000, isAdmin, hasMadePact: false };
       setUsers(prev => [...prev, user!]);
       toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
@@ -263,7 +265,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPactControlEnabled(prev => !prev);
   }
 
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl };
+  const toggleAdmin = (userId: string) => {
+    if (!currentUser || currentUser.id !== users[0]?.id) {
+        toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate face această acțiune.' });
+        return;
+    }
+    if (userId === users[0]?.id) {
+        toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți modifica statutul administratorului principal.' });
+        return;
+    }
+    
+    const targetUser = users.find(u => u.id === userId);
+    if(targetUser){
+        setUsers(users.map(u => u.id === userId ? { ...u, isAdmin: !u.isAdmin } : u));
+        toast({ title: 'Statut Modificat', description: `Utilizatorul ${targetUser.id} este acum ${!targetUser.isAdmin ? 'administrator de pariuri' : 'utilizator standard'}.` });
+    }
+  };
+
+  const deleteUser = (userId: string) => {
+    if (!currentUser || currentUser.id !== users[0]?.id) {
+        toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate face această acțiune.' });
+        return;
+    }
+    if (userId === users[0]?.id) {
+        toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți șterge administratorul principal.' });
+        return;
+    }
+    setBets(prev => prev.filter(b => b.userId !== userId));
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    toast({ title: 'Utilizator Șters', description: `Utilizatorul ${userId} și pariurile sale au fost șterse.` });
+  };
+
+
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser };
 
   return (
     <AppContext.Provider value={value}>
