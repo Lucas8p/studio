@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet } from 'lucide-react';
+import { Home, LogOut, ShieldPlus, Wallet, History } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -71,6 +71,14 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
                 <Link href="/profile">
                   <Wallet />
                   Portofelul meu
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/history')}>
+                <Link href="/history">
+                  <History />
+                  Istoric
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

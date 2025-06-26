@@ -10,22 +10,22 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, Hourglass } from 'lucide-react';
 
 export default function HomePage() {
-  const { scenarios, bets, currentUser } = useApp();
+  const { pariuri, bets, currentUser } = useApp();
 
   const userBets = currentUser ? bets.filter(bet => bet.userId === currentUser.id) : [];
-  const openScenarios = scenarios.filter(s => s.status === 'open');
+  const openPariuri = pariuri.filter(p => p.status === 'open');
 
   const activeUserBetsData = userBets
     .map(bet => {
-      const scenario = scenarios.find(s => s.id === bet.scenarioId);
-      return scenario && scenario.status === 'open' ? { bet, scenario } : null;
+      const pariu = pariuri.find(p => p.id === bet.pariuId);
+      return pariu && pariu.status === 'open' ? { bet, pariu } : null;
     })
     .filter(Boolean);
 
   const pastUserBetsData = userBets
     .map(bet => {
-      const scenario = scenarios.find(s => s.id === bet.scenarioId);
-      return scenario && scenario.status === 'closed' ? { bet, scenario } : null;
+      const pariu = pariuri.find(p => p.id === bet.pariuId);
+      return pariu && pariu.status === 'closed' ? { bet, pariu } : null;
     })
     .filter(Boolean)
     .sort((a, b) => parseInt(b.bet.id) - parseInt(a.bet.id));
@@ -41,14 +41,14 @@ export default function HomePage() {
       <TabsContent value="available">
         <ScrollArea className="h-[calc(100vh-10rem)]">
           <div className="p-1 pt-4">
-            {openScenarios.length === 0 ? (
+            {openPariuri.length === 0 ? (
               <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
-                Cartea scenariilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
+                Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {openScenarios.map(scenario => (
-                  <BettingCard key={scenario.id} scenario={scenario} />
+                {openPariuri.map(pariu => (
+                  <BettingCard key={pariu.id} pariu={pariu} />
                 ))}
               </div>
             )}
@@ -65,11 +65,11 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {activeUserBetsData.map(({ bet, scenario }) => (
+                {activeUserBetsData.map(({ bet, pariu }) => (
                   <Card key={bet.id}>
                     <CardHeader>
-                      <CardTitle className="font-headline text-lg leading-tight">{scenario.title}</CardTitle>
-                      <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{scenario.options[bet.optionIndex].text}</span></CardDescription>
+                      <CardTitle className="font-headline text-lg leading-tight">{pariu.title}</CardTitle>
+                      <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{pariu.options[bet.optionIndex].text}</span></CardDescription>
                     </CardHeader>
                     <CardContent className="flex items-center justify-between text-sm">
                         <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} talanți</span></div>
@@ -98,14 +98,14 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {pastUserBetsData.map(({ bet, scenario }) => {
-                  const isWin = scenario.winningOptionIndex === bet.optionIndex;
+                {pastUserBetsData.map(({ bet, pariu }) => {
+                  const isWin = pariu.winningOptionIndex === bet.optionIndex;
                   const winnings = bet.amount * bet.odds;
                   return (
                     <Card key={bet.id} className={isWin ? 'border-green-500/50' : 'border-destructive/50'}>
                       <CardHeader>
-                        <CardTitle className="font-headline text-lg leading-tight">{scenario.title}</CardTitle>
-                        <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{scenario.options[bet.optionIndex].text}</span></CardDescription>
+                        <CardTitle className="font-headline text-lg leading-tight">{pariu.title}</CardTitle>
+                        <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{pariu.options[bet.optionIndex].text}</span></CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between text-sm">
                           <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} talanți</span></div>

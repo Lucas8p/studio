@@ -10,30 +10,30 @@ export type User = {
   isAdmin: boolean;
 };
 
-export type ScenarioOption = {
+export type PariuOption = {
   text: string;
   odds: number;
 };
 
-export type Scenario = {
+export type Pariu = {
   id: string;
   title: string;
   description: string;
-  options: ScenarioOption[];
+  options: PariuOption[];
   winningOptionIndex?: number;
   status: 'open' | 'closed';
 };
 
 export type Bet = {
   id: string;
-  scenarioId: string;
+  pariuId: string;
   optionIndex: number;
   amount: number;
   userId: string;
   odds: number;
 };
 
-export type NewScenarioData = {
+export type NewPariuData = {
   title: string;
   options: { text: string; odds: string }[];
 };
@@ -46,15 +46,15 @@ type AppContextType = {
   appName: string;
   setAppName: (name: string) => void;
   balance: number;
-  scenarios: Scenario[];
+  pariuri: Pariu[];
   bets: Bet[];
-  addScenario: (data: NewScenarioData) => Promise<void>;
-  placeBet: (scenarioId: string, optionIndex: number, amount: number) => void;
-  resolveScenario: (scenarioId: string, winningOptionIndex: number) => void;
+  addPariu: (data: NewPariuData) => Promise<void>;
+  placeBet: (pariuId: string, optionIndex: number, amount: number) => void;
+  resolvePariu: (pariuId: string, winningOptionIndex: number) => void;
   addFunds: (amount: number) => void;
 };
 
-const initialScenarios: Scenario[] = [
+const initialPariuri: Pariu[] = [
   {
     id: '1',
     title: 'Se vor vinde primele prăjiturile cu lămâie la târgul de prăjituri al bisericii?',
@@ -93,7 +93,7 @@ const initialScenarios: Scenario[] = [
 const generateDescription = async (title: string): Promise<string> => {
   return new Promise(resolve => {
     setTimeout(() => {
-      resolve(`O descriere amuzantă și veselă pentru "${title}" generată de AI-ul nostru sfânt. Acesta ia în considerare toate posibilitățile distractive și adaugă o notă de umor divin scenariului.`);
+      resolve(`O descriere amuzantă și veselă pentru "${title}" generată de AI-ul nostru sfânt. Acesta ia în considerare toate posibilitățile distractive și adaugă o notă de umor divin pariului.`);
     }, 500);
   });
 };
@@ -103,7 +103,7 @@ export const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [scenarios, setScenarios] = useState<Scenario[]>(initialScenarios);
+  const [pariuri, setPariuri] = useState<Pariu[]>(initialPariuri);
   const [bets, setBets] = useState<Bet[]>([]);
   const [appName, setAppName] = useState('FaithBet');
   const { toast } = useToast();
@@ -134,27 +134,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addScenario = async (data: NewScenarioData) => {
+  const addPariu = async (data: NewPariuData) => {
     const description = await generateDescription(data.title);
-    const newScenario: Scenario = {
+    const newPariu: Pariu = {
       id: new Date().getTime().toString(),
       title: data.title,
       description: description,
       options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
       status: 'open',
     };
-    setScenarios(prev => [newScenario, ...prev]);
+    setPariuri(prev => [newPariu, ...prev]);
   };
 
-  const placeBet = (scenarioId: string, optionIndex: number, amount: number) => {
+  const placeBet = (pariuId: string, optionIndex: number, amount: number) => {
     if (!currentUser) {
         toast({ variant: 'destructive', title: 'Neautorizat', description: 'Trebuie să fii conectat pentru a plasa un pariu.' });
         return;
     }
 
-    const scenario = scenarios.find(s => s.id === scenarioId);
-    if (!scenario || scenario.status === 'closed') {
-        toast({ variant: 'destructive', title: 'Pariuri Închise', description: 'Acest scenariu nu mai este deschis pentru pariuri.' });
+    const pariu = pariuri.find(p => p.id === pariuId);
+    if (!pariu || pariu.status === 'closed') {
+        toast({ variant: 'destructive', title: 'Pariuri Închise', description: 'Acest pariu nu mai este deschis pentru pariuri.' });
         return;
     }
     if (amount > currentUser.balance) {
@@ -166,11 +166,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentUser(updatedUser);
     setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
 
-    const odds = scenario.options[optionIndex].odds;
+    const odds = pariu.options[optionIndex].odds;
 
     const newBet: Bet = {
       id: new Date().getTime().toString(),
-      scenarioId,
+      pariuId,
       optionIndex,
       amount,
       userId: currentUser.id,
@@ -180,23 +180,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} talanți pariați.` });
   };
 
-  const resolveScenario = (scenarioId: string, winningOptionIndex: number) => {
-    const scenarioToResolve = scenarios.find(s => s.id === scenarioId);
-    if (!scenarioToResolve || scenarioToResolve.status === 'closed') return;
+  const resolvePariu = (pariuId: string, winningOptionIndex: number) => {
+    const pariuToResolve = pariuri.find(p => p.id === pariuId);
+    if (!pariuToResolve || pariuToResolve.status === 'closed') return;
 
-    const updatedScenarios = scenarios.map(s =>
-      s.id === scenarioId
-        ? { ...s, status: 'closed' as const, winningOptionIndex }
-        : s
+    const updatedPariuri = pariuri.map(p =>
+      p.id === pariuId
+        ? { ...p, status: 'closed' as const, winningOptionIndex }
+        : p
     );
-    setScenarios(updatedScenarios);
+    setPariuri(updatedPariuri);
 
-    const winningBets = bets.filter(b => b.scenarioId === scenarioId && b.optionIndex === winningOptionIndex);
+    const winningBets = bets.filter(b => b.pariuId === pariuId && b.optionIndex === winningOptionIndex);
     let totalWinnings = 0;
     let updatedUsers = [...users];
 
     winningBets.forEach(bet => {
-        const odds = scenarioToResolve.options[bet.optionIndex].odds;
+        const odds = pariuToResolve.options[bet.optionIndex].odds;
         const winnings = bet.amount * odds;
         totalWinnings += winnings;
 
@@ -225,7 +225,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
     } else {
         toast({
-            title: 'Scenariu Rezolvat',
+            title: 'Pariu Rezolvat',
             description: `Rezultatul a fost decis. Nu au existat câștigători de data aceasta.`
         });
     }
@@ -233,7 +233,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   const balance = currentUser?.balance ?? 0;
 
-  const value = { users, currentUser, login, logout, appName, setAppName, balance, scenarios, bets, addScenario, placeBet, resolveScenario, addFunds };
+  const value = { users, currentUser, login, logout, appName, setAppName, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds };
 
   return (
     <AppContext.Provider value={value}>

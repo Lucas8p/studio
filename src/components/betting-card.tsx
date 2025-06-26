@@ -6,15 +6,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/hooks/use-app';
-import type { Scenario } from '@/contexts/app-context';
+import type { Pariu } from '@/contexts/app-context';
 import { HandCoins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface BettingCardProps {
-  scenario: Scenario;
+  pariu: Pariu;
 }
 
-export function BettingCard({ scenario }: BettingCardProps) {
+export function BettingCard({ pariu }: BettingCardProps) {
   const { placeBet, balance } = useApp();
   const [amount, setAmount] = useState<number | ''>('');
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -37,7 +37,7 @@ export function BettingCard({ scenario }: BettingCardProps) {
     
     setIsProcessing(true);
     try {
-        placeBet(scenario.id, selectedOption, amount);
+        placeBet(pariu.id, selectedOption, amount);
         setSelectedOption(null);
         setAmount('');
     } finally {
@@ -48,12 +48,12 @@ export function BettingCard({ scenario }: BettingCardProps) {
   return (
     <Card className="flex flex-col relative overflow-hidden transition-all hover:shadow-lg">
       <CardHeader>
-        <CardTitle className="font-headline text-lg leading-tight">{scenario.title}</CardTitle>
-        <CardDescription className="pt-2">{scenario.description}</CardDescription>
+        <CardTitle className="font-headline text-lg leading-tight">{pariu.title}</CardTitle>
+        <CardDescription className="pt-2">{pariu.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          {scenario.options.map((option, index) => (
+          {pariu.options.map((option, index) => (
             <Button
               key={index}
               variant={selectedOption === index ? 'default' : 'secondary'}

@@ -40,7 +40,7 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { scenarios, addScenario, resolveScenario, appName, setAppName, currentUser } = useApp();
+  const { pariuri, addPariu, resolvePariu, appName, setAppName, currentUser } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
@@ -61,10 +61,10 @@ export default function AdminPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    await addScenario(values);
+    await addPariu(values);
     toast({
       title: "S-a scris!",
-      description: "Un nou scenariu a fost creat și este deschis pentru pariuri voioase.",
+      description: "Un nou pariu a fost creat și este deschis pentru credincioși.",
     });
     form.reset({
       title: "",
@@ -73,15 +73,15 @@ export default function AdminPage() {
     setIsSubmitting(false);
   }
 
-  const handleResolve = (scenarioId: string) => {
-    const winningIndexStr = selections[scenarioId];
+  const handleResolve = (pariuId: string) => {
+    const winningIndexStr = selections[pariuId];
     if (winningIndexStr === undefined) {
         toast({ variant: "destructive", title: "Nicio selecție", description: "Te rog selectează o opțiune câștigătoare." });
         return;
     }
     const winningIndex = parseInt(winningIndexStr, 10);
-    resolveScenario(scenarioId, winningIndex);
-    toast({ title: "Scenariu Rezolvat!", description: "Rezultatul a fost decis și câștigătorii (dacă există) au fost plătiți." });
+    resolvePariu(pariuId, winningIndex);
+    toast({ title: "Pariu Rezolvat!", description: "Rezultatul a fost decis și câștigătorii (dacă există) au fost plătiți." });
   };
 
   const handleNameChange = () => {
@@ -91,7 +91,7 @@ export default function AdminPage() {
     }
   };
 
-  const openScenarios = scenarios.filter(s => s.status === 'open');
+  const openPariuri = pariuri.filter(p => p.status === 'open');
 
   if (!currentUser?.isAdmin) {
     return (
@@ -135,9 +135,9 @@ export default function AdminPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Adaugă Scenariu Nou</CardTitle>
+          <CardTitle className="font-headline text-2xl">Adaugă Pariu Nou</CardTitle>
           <CardDescription>
-            Creează un nou scenariu distractiv cu multiple opțiuni și cote. O descriere amuzantă va fi generată de AI.
+            Creează un nou pariu distractiv cu multiple opțiuni și cote. O descriere amuzantă va fi generată de AI.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,7 +148,7 @@ export default function AdminPage() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Titlu Scenariu</FormLabel>
+                    <FormLabel>Titlu Pariu</FormLabel>
                     <FormControl>
                       <Textarea placeholder="ex., Vor fi noile culori ale robelor corului un succes ceresc?" {...field} />
                     </FormControl>
@@ -201,7 +201,7 @@ export default function AdminPage() {
                   Adaugă Opțiune
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Se adaugă...' : 'Adaugă Scenariu cu AI'}
+                  {isSubmitting ? 'Se adaugă...' : 'Adaugă Pariu cu AI'}
                 </Button>
               </div>
             </form>
@@ -211,36 +211,36 @@ export default function AdminPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Rezolvă Scenarii Deschise</CardTitle>
+          <CardTitle className="font-headline text-2xl">Rezolvă Pariuri Deschise</CardTitle>
           <CardDescription>Selectează opțiunea câștigătoare pentru a închide pariurile și a plăti câștigătorii.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {openScenarios.length > 0 ? openScenarios.map((scenario, index) => (
-            <div key={scenario.id}>
+          {openPariuri.length > 0 ? openPariuri.map((pariu, index) => (
+            <div key={pariu.id}>
               <div className="flex justify-between items-center gap-4 p-4 border rounded-lg">
-                <p className="font-medium flex-1">{scenario.title}</p>
+                <p className="font-medium flex-1">{pariu.title}</p>
                 <div className="flex items-center gap-2">
-                  <Select onValueChange={(value) => setSelections(prev => ({ ...prev, [scenario.id]: value }))}>
+                  <Select onValueChange={(value) => setSelections(prev => ({ ...prev, [pariu.id]: value }))}>
                     <SelectTrigger className="w-[250px]">
                       <SelectValue placeholder="Selectează opțiunea câștigătoare" />
                     </SelectTrigger>
                     <SelectContent>
-                      {scenario.options.map((option, idx) => (
+                      {pariu.options.map((option, idx) => (
                         <SelectItem key={idx} value={String(idx)}>
                           {option.text}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button onClick={() => handleResolve(scenario.id)} disabled={!selections[scenario.id]}>
+                  <Button onClick={() => handleResolve(pariu.id)} disabled={!selections[pariu.id]}>
                     Rezolvă
                   </Button>
                 </div>
               </div>
-              {index < openScenarios.length - 1 && <Separator className="my-6"/>}
+              {index < openPariuri.length - 1 && <Separator className="my-6"/>}
             </div>
           )) : (
-            <p className="text-muted-foreground text-center">Niciun scenariu nu este deschis pentru rezolvare în acest moment.</p>
+            <p className="text-muted-foreground text-center">Niciun pariu nu este deschis pentru rezolvare în acest moment.</p>
           )}
         </CardContent>
       </Card>
