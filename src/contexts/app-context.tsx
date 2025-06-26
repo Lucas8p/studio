@@ -3,6 +3,7 @@
 
 import React, { createContext, useState, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { generateBetDescription } from '@/ai/flows/generate-bet-description';
 
 export type User = {
   id: string; // username
@@ -96,15 +97,6 @@ const initialPariuri: Pariu[] = [
   }
 ];
 
-// Mock AI function
-const generateDescription = async (title: string): Promise<string> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(`O descriere amuzantă și veselă pentru "${title}" generată de AI-ul nostru sfânt. Acesta ia în considerare toate posibilitățile distractive și adaugă o notă de umor divin pariului.`);
-    }, 500);
-  });
-};
-
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -163,7 +155,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addPariu = async (data: NewPariuData) => {
-    const description = await generateDescription(data.title);
+    const description = await generateBetDescription(data);
     const newPariu: Pariu = {
       id: new Date().getTime().toString(),
       title: data.title,
