@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -118,8 +119,8 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
              <h1 className="text-xl font-semibold font-headline">{title}</h1>
           </div>
           {showBalance && (
-            <div className="font-semibold text-lg">
-              Balanță: <span className="text-accent-foreground font-bold font-headline">{balance.toFixed(2)} talanți</span>
+            <div className="font-semibold text-base md:text-lg whitespace-nowrap text-right">
+              <span className="hidden sm:inline">Balanță: </span><span className="text-accent-foreground font-bold font-headline">{balance.toFixed(2)} talanți</span>
             </div>
           )}
         </header>

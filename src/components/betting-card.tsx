@@ -69,7 +69,7 @@ export function BettingCard({ pariu }: BettingCardProps) {
           ))}
         </div>
       </CardContent>
-      <CardFooter className="flex items-center gap-2">
+      <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         {hasAlreadyBet ? (
             <Badge variant="secondary" className="w-full justify-center text-base py-2">
                 <CheckCircle className="mr-2 h-4 w-4 text-green-500"/>
@@ -78,7 +78,7 @@ export function BettingCard({ pariu }: BettingCardProps) {
         ) : (
             <>
                 <div className="relative flex-grow">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">T</span>
                 <Input
                     type="number"
                     placeholder="Sumă Pariu"

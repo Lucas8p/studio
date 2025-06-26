@@ -151,11 +151,11 @@ export default function AdminPage() {
         <CardContent className="space-y-6">
           {openPariuri.length > 0 ? openPariuri.map((pariu, index) => (
             <div key={pariu.id}>
-              <div className="flex justify-between items-center gap-4 p-4 border rounded-lg">
-                <p className="font-medium flex-1">{pariu.title}</p>
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 p-4 border rounded-lg">
+                <p className="font-medium flex-1 truncate">{pariu.title}</p>
+                <div className="flex flex-col sm:flex-row items-stretch gap-2">
                   <Select onValueChange={(value) => setSelections(prev => ({ ...prev, [pariu.id]: value }))}>
-                    <SelectTrigger className="w-[250px]">
+                    <SelectTrigger className="w-full sm:w-[250px]">
                       <SelectValue placeholder="Selectează opțiunea câștigătoare" />
                     </SelectTrigger>
                     <SelectContent>
@@ -207,12 +207,12 @@ export default function AdminPage() {
                 <FormDescription className="mb-2">Adaugă cel puțin două opțiuni cu cotele respective.</FormDescription>
                 <div className="space-y-4">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="flex items-start gap-2">
+                    <div key={field.id} className="flex flex-col sm:flex-row items-start gap-2">
                       <FormField
                         control={form.control}
                         name={`options.${index}.text`}
                         render={({ field }) => (
-                          <FormItem className="flex-1">
+                          <FormItem className="w-full sm:flex-1">
                             <FormControl>
                               <Input placeholder={`Text Opțiune ${index + 1}`} {...field} />
                             </FormControl>
@@ -224,7 +224,7 @@ export default function AdminPage() {
                         control={form.control}
                         name={`options.${index}.odds`}
                         render={({ field }) => (
-                          <FormItem className="w-24">
+                          <FormItem className="w-full sm:w-24">
                             <FormControl>
                               <Input type="number" placeholder="Cote" {...field} step="0.1" />
                             </FormControl>
@@ -275,7 +275,7 @@ export default function AdminPage() {
                         <TableBody>
                             {users.map(user => (
                                 <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.id}</TableCell>
+                                    <TableCell className="font-medium truncate">{user.id}</TableCell>
                                     <TableCell>
                                         {user.id === users[0].id 
                                             ? <Badge variant="destructive">Admin Principal</Badge> 
@@ -283,7 +283,7 @@ export default function AdminPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {user.id !== currentUser.id && (
-                                            <div className="flex gap-2 justify-end">
+                                            <div className="flex flex-col sm:flex-row gap-2 justify-end">
                                                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(user.id)}>
                                                     {user.isAdmin ? <ShieldX className="mr-2 h-4 w-4" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
                                                     {user.isAdmin ? 'Retrogradează' : 'Promovează'}
