@@ -74,10 +74,10 @@ const initialPariuri: Pariu[] = [
   },
   {
     id: '2',
-    title: 'Va cânta corul "O, ce veste minunată!" și în iulie?',
+    title: 'Cântă Revive și anul ăsta "Voi cânta bunătatea Ta" sau nu?',
     options: [
-        { text: 'Da, e un clasic!', odds: 1.2 },
-        { text: 'Nu, schimbă repertoriul!', odds: 3.5 },
+        { text: 'Da, mai merge forjată umpic', odds: 1.7 },
+        { text: 'Nu că s-au plictisit și ei de ea', odds: 2.1 },
     ],
     status: 'open',
   },
