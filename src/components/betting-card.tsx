@@ -23,15 +23,15 @@ export function BettingCard({ scenario }: BettingCardProps) {
 
   const handlePlaceBet = () => {
     if (selectedOption === null) {
-      toast({ variant: 'destructive', title: 'No option selected', description: 'Please choose an outcome to bet on.' });
+      toast({ variant: 'destructive', title: 'Nicio opțiune selectată', description: 'Te rog alege un rezultat pe care să pariezi.' });
       return;
     }
     if (amount === '' || amount <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid amount', description: 'Please enter a valid amount to bet.' });
+      toast({ variant: 'destructive', title: 'Sumă invalidă', description: 'Te rog introdu o sumă validă pentru a paria.' });
       return;
     }
     if (amount > balance) {
-       toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'You do not have enough balance to place this bet.' });
+       toast({ variant: 'destructive', title: 'Fonduri Insuficiente', description: 'Nu ai suficientă balanță pentru a plasa acest pariu.' });
       return;
     }
     
@@ -62,7 +62,7 @@ export function BettingCard({ scenario }: BettingCardProps) {
               disabled={isProcessing}
             >
               <span>{option.text}</span>
-              <span className="text-xs opacity-80">(Odds: {option.odds.toFixed(2)})</span>
+              <span className="text-xs opacity-80">(Cotă: {option.odds.toFixed(2)})</span>
             </Button>
           ))}
         </div>
@@ -72,7 +72,7 @@ export function BettingCard({ scenario }: BettingCardProps) {
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
           <Input
             type="number"
-            placeholder="Bet Amount"
+            placeholder="Sumă Pariu"
             value={amount}
             onChange={(e) => setAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
             className="pl-6"
@@ -82,7 +82,7 @@ export function BettingCard({ scenario }: BettingCardProps) {
         </div>
         <Button onClick={handlePlaceBet} disabled={isProcessing}>
           <HandCoins className="mr-2 h-4 w-4" />
-          {isProcessing ? 'Placing...' : 'Place Bet'}
+          {isProcessing ? 'Se plasează...' : 'Plasează Pariu'}
         </Button>
       </CardFooter>
     </Card>

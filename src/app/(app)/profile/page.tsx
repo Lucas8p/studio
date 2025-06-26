@@ -17,9 +17,9 @@ export default function ProfilePage() {
     const handleAddFunds = () => {
         if (typeof amount === 'number' && amount > 0) {
             addFunds(amount);
-            toast({ title: 'Funds Added!', description: `Successfully added $${amount.toFixed(2)} to your account.`});
+            toast({ title: 'Fonduri Adăugate!', description: `Ai adăugat cu succes ${amount.toFixed(2)} $ în contul tău.`});
         } else {
-            toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive number.' });
+            toast({ variant: 'destructive', title: 'Sumă Invalidă', description: 'Te rog introdu un număr pozitiv.' });
         }
     };
 
@@ -27,18 +27,18 @@ export default function ProfilePage() {
         <div className="max-w-md mx-auto">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Add Funds to Your Wallet</CardTitle>
-                    <CardDescription>Top up your balance to continue placing blessed bets.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Adaugă Fonduri în Portofel</CardTitle>
+                    <CardDescription>Alimentează-ți balanța pentru a continua să plasezi pariuri binecuvântate.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <label htmlFor="amount" className="text-sm font-medium text-muted-foreground">Amount</label>
+                        <label htmlFor="amount" className="text-sm font-medium text-muted-foreground">Sumă</label>
                         <div className="relative mt-1">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                             <Input
                                 id="amount"
                                 type="number"
-                                placeholder="e.g., 100"
+                                placeholder="ex., 100"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
                                 className="pl-7"
@@ -48,7 +48,7 @@ export default function ProfilePage() {
                     </div>
                     <Button onClick={handleAddFunds} className="w-full">
                         <Banknote className="mr-2 h-4 w-4" />
-                        Add Funds
+                        Adaugă Fonduri
                     </Button>
                 </CardContent>
             </Card>

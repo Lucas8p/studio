@@ -4,7 +4,7 @@ import { SharedLayout } from '@/components/shared-layout';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <SharedLayout title="Welcome to FaithBet Fun" showBalance={true}>
+    <SharedLayout title="Bun venit la FaithBet" showBalance={true}>
       {children}
     </SharedLayout>
   );

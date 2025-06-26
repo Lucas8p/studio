@@ -14,7 +14,7 @@ export default function HomePage() {
       <div className="p-1">
         {openScenarios.length === 0 ? (
           <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
-            The book of scenarios is currently empty. The Spirit will provide new opportunities soon. Check back later!
+            Cartea scenariilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

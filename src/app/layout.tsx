@@ -4,8 +4,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { AppProvider } from '@/contexts/app-context';
 
 export const metadata: Metadata = {
-  title: 'FaithBet Fun',
-  description: 'A Christian betting platform for fun',
+  title: 'FaithBet',
+  description: 'O platformă de pariuri creștine pentru distracție',
 };
 
 export default function RootLayout({

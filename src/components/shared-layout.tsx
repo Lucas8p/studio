@@ -36,7 +36,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
               <SidebarMenuButton asChild variant="ghost" isActive={pathname === '/'}>
                 <Link href="/">
                   <Home />
-                  Scenarios
+                  Scenarii
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -44,7 +44,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
               <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/profile')}>
                 <Link href="/profile">
                   <Wallet />
-                  My Wallet
+                  Portofelul Meu
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -52,7 +52,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
               <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin')}>
                 <Link href="/admin">
                   <ShieldPlus />
-                  Admin Panel
+                  Panou Admin
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -60,7 +60,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
         </SidebarContent>
         <SidebarFooter>
             <div className="text-center text-sm text-primary-foreground/50">
-                FaithBet Fun &copy; 2024
+                FaithBet &copy; 2024
             </div>
         </SidebarFooter>
       </Sidebar>
@@ -72,7 +72,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
           </div>
           {showBalance && (
             <div className="font-semibold text-lg">
-              Balance: <span className="text-accent-foreground font-bold font-headline">${balance.toFixed(2)}</span>
+              Balanță: <span className="text-accent-foreground font-bold font-headline">${balance.toFixed(2)}</span>
             </div>
           )}
         </header>
