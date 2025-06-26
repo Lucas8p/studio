@@ -113,14 +113,19 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
-          <div className="flex items-center gap-4">
-             <SidebarTrigger className="md:hidden" />
-             <h1 className="text-xl font-semibold font-headline">{title}</h1>
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+          <div className="flex items-center gap-4 overflow-hidden">
+            <SidebarTrigger className="flex-shrink-0 md:hidden" />
+            <h1 className="truncate text-lg font-semibold font-headline sm:text-xl">{title}</h1>
           </div>
           {showBalance && (
-            <div className="font-semibold text-base md:text-lg whitespace-nowrap text-right">
-              <span className="hidden sm:inline">Balanță: </span><span className="text-accent-foreground font-bold font-headline">{balance.toFixed(2)} talanți</span>
+            <div className="flex-shrink-0 font-semibold whitespace-nowrap text-right text-sm sm:text-base md:text-lg">
+              <span className="hidden sm:inline">Balanță: </span>
+              <span className="font-bold font-headline text-accent-foreground">
+                {balance.toFixed(2)}
+                <span className="hidden sm:inline"> talanți</span>
+                <span className="sm:hidden"> T</span>
+              </span>
             </div>
           )}
         </header>

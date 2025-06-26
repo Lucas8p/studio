@@ -285,12 +285,12 @@ export default function AdminPage() {
                                         {user.id !== currentUser.id && (
                                             <div className="flex flex-col sm:flex-row gap-2 justify-end">
                                                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(user.id)}>
-                                                    {user.isAdmin ? <ShieldX className="mr-2 h-4 w-4" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
-                                                    {user.isAdmin ? 'Retrogradează' : 'Promovează'}
+                                                    {user.isAdmin ? <ShieldX /> : <ShieldCheck />}
+                                                    <span className="hidden md:inline">{user.isAdmin ? 'Retrogradează' : 'Promovează'}</span>
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => setUserToDelete(user.id)}>
-                                                    <UserX className="mr-2 h-4 w-4" />
-                                                    Șterge
+                                                    <UserX />
+                                                    <span className="hidden md:inline">Șterge</span>
                                                 </Button>
                                             </div>
                                         )}
