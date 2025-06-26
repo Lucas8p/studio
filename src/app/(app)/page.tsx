@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -62,7 +61,7 @@ export default function HomePage() {
     
   return (
     <Tabs defaultValue="available" className="w-full">
-      <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
+      <TabsList className="grid w-full grid-cols-1 sm:h-10 sm:grid-cols-3">
         <TabsTrigger value="available">Pariuri Disponibile</TabsTrigger>
         <TabsTrigger value="active">Pariurile Mele Active</TabsTrigger>
         <TabsTrigger value="past">Istoric Pariuri</TabsTrigger>
