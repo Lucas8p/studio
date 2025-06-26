@@ -70,7 +70,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
               <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/profile')}>
                 <Link href="/profile">
                   <Wallet />
-                  Pactul Meu
+                  Portofelul meu
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -104,7 +104,7 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
           </div>
           {showBalance && (
             <div className="font-semibold text-lg">
-              Balanță: <span className="text-accent-foreground font-bold font-headline">{balance.toFixed(2)} 魂</span>
+              Balanță: <span className="text-accent-foreground font-bold font-headline">{balance.toFixed(2)} talanți</span>
             </div>
           )}
         </header>

@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 function AppTitleUpdater() {
   const { appName } = useApp();
   useEffect(() => {
-    document.title = appName;
+    document.title = `${appName} - Pariază cu credință`;
   }, [appName]);
   return null;
 }

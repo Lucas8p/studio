@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const handlePact = () => {
         if (typeof amount === 'number' && amount > 0) {
             addFunds(amount);
-            toast({ title: 'Pact încheiat!', description: `Ai primit ${amount.toFixed(2)} monede de argint... dar cu ce preț?`});
+            toast({ title: 'Pact încheiat!', description: `Ai primit ${amount.toFixed(2)} talanți... dar cu ce preț?`});
         } else {
             toast({ variant: 'destructive', title: 'Ofertă invalidă', description: 'Lordul Întunericului nu se lasă păcălit de sume neînsemnate.' });
         }
@@ -34,7 +34,7 @@ export default function ProfilePage() {
                     <div>
                         <label htmlFor="amount" className="text-sm font-medium text-muted-foreground">Valoarea sufletului tău</label>
                         <div className="relative mt-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">魂</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">T</span>
                             <Input
                                 id="amount"
                                 type="number"

@@ -173,7 +173,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       userId: currentUser.id
     };
     setBets(prev => [...prev, newBet]);
-    toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} 魂 pariați.` });
+    toast({ title: 'Pariu Plasat!', description: `Ți-ai pus credința în asta! ${amount} talanți pariați.` });
   };
 
   const resolveScenario = (scenarioId: string, winningOptionIndex: number) => {
@@ -217,7 +217,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (winningBets.length > 0) {
         toast({
             title: 'Diavolul își plătește datoriile!',
-            description: `S-au plătit ${totalWinnings.toFixed(2)} 魂 câștigătorilor.`
+            description: `S-au plătit ${totalWinnings.toFixed(2)} talanți câștigătorilor.`
         });
     } else {
         toast({
