@@ -12,24 +12,28 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getDailyAdvice } from '@/ai/flows/daily-advice-flow';
+import { getDailyAdvice, type DailyAdviceOutput } from '@/ai/flows/daily-advice-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
 function DailyAdviceCard() {
-  const [advice, setAdvice] = useState('');
+  const [dailyAdvice, setDailyAdvice] = useState<DailyAdviceOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasAsked, setHasAsked] = useState(false);
 
   const handleGetAdvice = async () => {
     setIsLoading(true);
     setHasAsked(true);
+    setDailyAdvice(null);
     try {
       const result = await getDailyAdvice();
-      setAdvice(result);
+      setDailyAdvice(result);
     } catch (error) {
       console.error("Error getting daily advice:", error);
-      setAdvice("Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.");
+      setDailyAdvice({
+        text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
+        audio: ''
+      });
     } finally {
       setIsLoading(false);
     }
@@ -43,16 +47,27 @@ function DailyAdviceCard() {
           Sfatul Zilei
         </CardTitle>
       </CardHeader>
-      <CardContent className="text-center">
+      <CardContent className="text-center space-y-4">
         {!hasAsked ? (
            <Button variant="outline" onClick={handleGetAdvice} className="bg-background/50">
               <Sparkles className="mr-2 h-4 w-4" />
               Primește îndrumare divină
             </Button>
         ) : isLoading ? (
-          <Skeleton className="h-5 w-3/4 mx-auto" />
-        ) : (
-          <p className="italic text-foreground/90">&ldquo;{advice}&rdquo;</p>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-3/4 mx-auto" />
+            <Skeleton className="h-10 w-full mx-auto" />
+          </div>
+        ) : dailyAdvice && (
+          <>
+            <p className="italic text-foreground/90">&ldquo;{dailyAdvice.text}&rdquo;</p>
+            {dailyAdvice.audio && (
+                <audio controls autoPlay className="w-full mx-auto">
+                    <source src={dailyAdvice.audio} type="audio/wav" />
+                    Browser-ul tău nu suportă elementul audio.
+                </audio>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
