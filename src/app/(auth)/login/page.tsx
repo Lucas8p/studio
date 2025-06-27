@@ -12,7 +12,7 @@ import { LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
-  const { login, appName } = useApp();
+  const { login, appName, slogan } = useApp();
   const router = useRouter();
 
   const handleLogin = () => {
@@ -23,23 +23,23 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 text-primary">
-            <Logo appName={appName} />
+    <Card className="w-full max-w-sm border-2 border-primary/20 shadow-lg shadow-primary/10 bg-card/80 backdrop-blur-sm">
+      <CardHeader className="text-center p-8">
+        <div className="mx-auto mb-6 text-primary scale-125">
+            <Logo appName={appName} slogan={slogan} />
         </div>
-        <CardTitle className="font-headline text-2xl">Bun venit!</CardTitle>
-        <CardDescription>Introdu numele tău de utilizator pentru a intra în joc.</CardDescription>
+        <CardTitle className="font-headline text-3xl text-primary">Bun venit!</CardTitle>
+        <CardDescription className="text-foreground/80">Introdu numele tău de credincios pentru a intra în arenă.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-8 pb-8">
         <Input
-          placeholder="Nume utilizator"
+          placeholder="Nume de luptător"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
           autoFocus
         />
-        <Button onClick={handleLogin} className="w-full" disabled={!username.trim()}>
+        <Button onClick={handleLogin} className="w-full" size="lg" disabled={!username.trim()}>
           <LogIn className="mr-2 h-4 w-4" />
           Intră în cont
         </Button>
