@@ -69,7 +69,7 @@ const initialPariuri: Pariu[] = [
     title: 'Iar ne ține mai mult Gabi Sere la predică?',
     description: "Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta amiezii tale stă în cumpănă.",
     options: [
-      { text: 'Mai vreo oră sigur', odds: 4.0 },
+      { text: 'Mai vreo ora sigur', odds: 4.0 },
       { text: 'Doar 10 minute', odds: 2.5 },
       { text: 'Nu, scăpăm repede', odds: 1.5 }
     ],
