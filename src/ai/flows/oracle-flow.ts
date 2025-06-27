@@ -72,7 +72,10 @@ const oracleFlow = ai.defineFlow(
         inputSchema: OracleInputSchema,
         outputSchema: OracleOutputSchema,
     },
-    async ({ question, generateAudio = true }) => {
+    async (input) => {
+        const { question } = input;
+        const generateAudio = input.generateAudio ?? true;
+
         // 1. Generate the text response
         const textResponse = await textPrompt(question);
         const textOutput = textResponse.text || `Stelele sunt neclare în privința asta... Încearcă din nou când soarta va fi mai limpede.`;

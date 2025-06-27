@@ -70,7 +70,9 @@ const dailyAdviceFlow = ai.defineFlow(
         inputSchema: DailyAdviceInputSchema,
         outputSchema: DailyAdviceOutputSchema,
     },
-    async ({ generateAudio = true }) => {
+    async (input) => {
+        const generateAudio = input?.generateAudio ?? true;
+
         // 1. Generate text
         const textResponse = await textPrompt();
         const textOutput = textResponse.text || `Soarta este indecisă astăzi. Încearcă mai târziu.`;
