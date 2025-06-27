@@ -1,8 +1,21 @@
 
 "use client";
 
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
+import { 
+  loginAction, 
+  addFundsAction,
+  addPariuAction,
+  placeBetAction,
+  resolvePariuAction,
+  deletePariuAction,
+  addCommentAction,
+  toggleAdminAction,
+  deleteUserAction,
+  updateAdminPasswordAction,
+} from '@/app/actions';
 
 export type AchievementID = 'NOVICE' | 'PACT_MAKER' | 'PROPHET' | 'JOB' | 'STREAK';
 
@@ -53,10 +66,21 @@ export type NewPariuData = {
   options: { text: string; odds: string }[];
 };
 
+export type InitialData = {
+  users: User[];
+  pariuri: Pariu[];
+  bets: Bet[];
+  appName: string;
+  slogan: string;
+  pactControlEnabled: boolean;
+  aiVoiceEnabled: boolean;
+};
+
+
 type AppContextType = {
   users: User[];
   currentUser: User | null;
-  login: (username: string, password?: string) => boolean;
+  login: (username: string, password?: string) => Promise<boolean>;
   logout: () => void;
   appName: string;
   setAppName: (name: string) => void;
@@ -80,424 +104,178 @@ type AppContextType = {
   updateAdminPassword: (userId: string, newPassword: string) => void;
 };
 
-const initialPariuri: Pariu[] = [
-  {
-    id: '1',
-    title: 'Iar ne ține mai mult Gabi Sere la predică?',
-    description: "Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta serii tale stă în cumpănă.",
-    options: [
-      { text: 'Mai vreo ora sigur', odds: 4.0 },
-      { text: 'Doar 10 minute', odds: 2.5 },
-      { text: 'Nu, scăpăm repede', odds: 1.5 }
-    ],
-    status: 'open',
-    comments: [],
-  },
-  {
-    id: '2',
-    title: 'Cântă Revive și anul ăsta "Voi cânta bunătatea Ta" sau nu?',
-    description: "Un imn clasic, o trupă legendară. Vor ceda cei de la Revive ispitei de a reaprinde flacăra nostalgiei sau vor alege o cale nouă, necartografiată? Alege cu înțelepciune.",
-    options: [
-        { text: 'Da, mai merge forjată umpic', odds: 1.7 },
-        { text: 'Nu că s-au plictisit și ei de ea', odds: 2.1 },
-    ],
-    status: 'open',
-    comments: [],
-  },
-  {
-    id: '3',
-    title: 'Vor ajunge pachețelele de la agapă la toată lumea?',
-    description: "O minune modernă a înmulțirii... sau un test de logistică divină. Va reuși comitetul de organizare să satureze mulțimea sau vor rămâne unii flămânzi, meditând la pilda celor cinci pâini și doi pești?",
-    options: [
-        { text: 'Da, se satură toți și mai rămâne', odds: 1.3 },
-        { text: 'Nu, ultimii vor posti', odds: 3.0 }
-    ],
-    status: 'closed',
-    winningOptionIndex: 0,
-    comments: [],
-  }
-];
-
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [pariuri, setPariuri] = useState<Pariu[]>(initialPariuri);
-  const [bets, setBets] = useState<Bet[]>([]);
-  const [appName, setAppName] = useState('InspaiărBet');
-  const [slogan, setSlogan] = useState('Pariază cu inspirație');
-  const [pactControlEnabled, setPactControlEnabled] = useState(true);
-  const [aiVoiceEnabled, setAiVoiceEnabled] = useState(true);
+export function AppProvider({ children, initialData }: { children: ReactNode, initialData: InitialData }) {
+  const router = useRouter();
   const { toast } = useToast();
-
-  const updateUser = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
-    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-  }
-
-  const checkAndAwardAchievement = (user: User, achievementId: AchievementID): User => {
-    if (!user.achievements.includes(achievementId)) {
-        toast({
-            title: "Realizare Deblocată!",
-            description: `Ai primit realizarea: ${achievementId}.`
-        });
-        return { ...user, achievements: [...user.achievements, achievementId] };
-    }
-    return user;
-  };
   
-  const updateBalanceHistory = (user: User, newBalance: number): User => {
-      const newHistoryEntry = { date: new Date().getTime(), balance: newBalance };
-      const updatedHistory = [...user.balanceHistory, newHistoryEntry];
-      return { ...user, balance: newBalance, balanceHistory: updatedHistory };
-  }
+  const [users, setUsers] = useState<User[]>(initialData.users);
+  const [pariuri, setPariuri] = useState<Pariu[]>(initialData.pariuri);
+  const [bets, setBets] = useState<Bet[]>(initialData.bets);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [appName, setAppNameState] = useState(initialData.appName);
+  const [slogan, setSloganState] = useState(initialData.slogan);
+  const [pactControlEnabled, setPactControlEnabled] = useState(initialData.pactControlEnabled);
+  const [aiVoiceEnabled, setAiVoiceEnabled] = useState(initialData.aiVoiceEnabled);
 
-  const login = (username: string, password?: string): boolean => {
-    let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
-    const isFirstUser = users.length === 0;
-
-    const isPotentiallyAdmin = user?.isAdmin || (isFirstUser && username.trim() !== '');
-
-    if (isPotentiallyAdmin) {
-      const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
-      
-      if (!user) { // First user ever, they become primary admin
-          if (password !== adminPassword) {
-            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
-            return false;
-          }
-         user = { 
-            id: username, 
-            balance: 1000, 
-            isAdmin: true, 
-            hasMadePact: false,
-            achievements: [],
-            balanceHistory: [{ date: new Date().getTime(), balance: 1000 }],
-            password: adminPassword
-          };
-          setUsers(prev => [...prev, user!]);
-          toast({ title: `Bine ai venit, Administrator Principal ${username}!`, description: "Contul tău a fost creat." });
-      } else { // Existing admin user
-        if (password !== user.password) {
-            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
-            return false;
-        }
-        toast({ title: `Bine ai revenit, ${username}!` });
-      }
-    } else { // Regular user
-      if (!user) {
-        const initialBalance = 1000;
-        user = { 
-          id: username, 
-          balance: initialBalance, 
-          isAdmin: false, 
-          hasMadePact: false,
-          achievements: [],
-          balanceHistory: [{ date: new Date().getTime(), balance: initialBalance }]
-        };
-        setUsers(prev => [...prev, user!]);
-        toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
-      } else {
-        toast({ title: `Bine ai revenit, ${username}!` });
+  useEffect(() => {
+    // Persist and retrieve currentUser across reloads
+    const storedUserId = sessionStorage.getItem('currentUser');
+    if (storedUserId) {
+      const user = initialData.users.find(u => u.id === storedUserId);
+      if (user) {
+        setCurrentUser(user);
       }
     }
-    
-    setCurrentUser(user);
-    return true;
-  };
+  }, [initialData.users]);
+  
+  useEffect(() => {
+    // Update client state when initialData changes after a refresh
+    setUsers(initialData.users);
+    setPariuri(initialData.pariuri);
+    setBets(initialData.bets);
+    const storedUserId = sessionStorage.getItem('currentUser');
+    if (storedUserId) {
+      const user = initialData.users.find(u => u.id === storedUserId);
+       if (user) {
+        setCurrentUser(user);
+      } else {
+        // User might have been deleted, so log out
+        logout();
+      }
+    }
+  }, [initialData]);
 
+  const setAppName = (name: string) => setAppNameState(name); // Placeholder for future persistence
+  const setSlogan = (slogan: string) => setSloganState(slogan); // Placeholder for future persistence
+
+  const login = async (username: string, password?: string): Promise<boolean> => {
+    const result = await loginAction(username, password);
+    if (result.success) {
+      setCurrentUser(result.user);
+      sessionStorage.setItem('currentUser', result.user.id);
+      toast({ title: result.message });
+      router.push('/');
+      return true;
+    } else {
+      toast({ variant: 'destructive', title: 'Autentificare Eșuată', description: result.message });
+      return false;
+    }
+  };
 
   const logout = () => {
     setCurrentUser(null);
+    sessionStorage.removeItem('currentUser');
+    router.push('/login');
   };
 
-  const addFunds = (amount: number) => {
+  const addFunds = async (amount: number) => {
     if (!currentUser) return;
-    
-    let updatedUser = { ...currentUser };
-
-    if (pactControlEnabled) {
-      if (updatedUser.hasMadePact) {
-        toast({ variant: 'destructive', title: 'Pact deja încheiat', description: 'Ai făcut deja pactul o dată. Lăcomia este un păcat.' });
-        return;
+    const result = await addFundsAction(currentUser.id, amount, pactControlEnabled);
+    if (result.success) {
+      toast({ title: 'Succes!', description: result.message });
+      if (result.achievement) {
+          toast(result.achievement);
       }
-      if (amount !== 666) {
-        toast({ variant: 'destructive', title: 'Ofertă respinsă', description: 'Lordul Întunericului acceptă doar ofranda standard de 666 de talanți.' });
-        return;
-      }
-      updatedUser = updateBalanceHistory(updatedUser, updatedUser.balance + amount);
-      updatedUser.hasMadePact = true;
-      updatedUser = checkAndAwardAchievement(updatedUser, 'PACT_MAKER');
-      toast({ title: 'Pact încheiat!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont, cu costul sufletului tău`});
+      router.refresh();
     } else {
-      if (amount <= 0) {
-        toast({ variant: 'destructive', title: 'Ofertă invalidă', description: 'Trebuie să oferi o sumă validă.' });
-        return;
-      }
-      updatedUser = updateBalanceHistory(updatedUser, updatedUser.balance + amount);
-      toast({ title: 'Fonduri adăugate!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont.`});
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
     }
-    updateUser(updatedUser);
-  };
-
-  const addPariu = (data: NewPariuData) => {
-    const newPariu: Pariu = {
-      id: new Date().getTime().toString(),
-      title: data.title,
-      description: data.description,
-      options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
-      status: 'open',
-      comments: [],
-    };
-    setPariuri(prev => [newPariu, ...prev]);
-  };
-
-  const placeBet = (pariuId: string, optionIndex: number, amount: number) => {
-    if (!currentUser) {
-        toast({ variant: 'destructive', title: 'Neautorizat', description: 'Trebuie să fii conectat pentru a plasa un pariu.' });
-        return;
-    }
-
-    const pariu = pariuri.find(p => p.id === pariuId);
-    if (!pariu || pariu.status === 'closed') {
-        toast({ variant: 'destructive', title: 'Pariuri Închise', description: 'Acest pariu nu mai este deschis pentru pariuri.' });
-        return;
-    }
-    if (amount > currentUser.balance) {
-      toast({ variant: 'destructive', title: 'Un Test de Prudență', description: 'Fondurile tale sunt scăzute. Poate un salt de credință mai mic este indicat?' });
-      return;
-    }
-    
-    const userHasBetOnThis = bets.some(b => b.pariuId === pariuId && b.userId === currentUser.id);
-    if (userHasBetOnThis) {
-      toast({ variant: 'destructive', title: 'Pariu Duplicat', description: 'Ai pariat deja pe acest eveniment.' });
-      return;
-    }
-    
-    let updatedUser = updateBalanceHistory(currentUser, currentUser.balance - amount);
-    updatedUser = checkAndAwardAchievement(updatedUser, 'NOVICE');
-    updateUser(updatedUser);
-
-    const odds = pariu.options[optionIndex].odds;
-
-    const newBet: Bet = {
-      id: new Date().getTime().toString(),
-      pariuId,
-      optionIndex,
-      amount,
-      userId: currentUser.id,
-      odds,
-      date: new Date().getTime()
-    };
-    setBets(prev => [...prev, newBet]);
-    toast({ description: "Pariul a fost plasat, așteaptă și o să vezi cât de mare îți e credința :)" });
-  };
-
-  const resolvePariu = (pariuId: string, winningOptionIndex: number) => {
-    const pariuToResolve = pariuri.find(p => p.id === pariuId);
-    if (!pariuToResolve || pariuToResolve.status === 'closed') return;
-
-    const updatedPariuri = pariuri.map(p =>
-      p.id === pariuId
-        ? { ...p, status: 'closed' as const, winningOptionIndex }
-        : p
-    );
-    setPariuri(updatedPariuri);
-
-    const betsForThisPariu = bets.filter(b => b.pariuId === pariuId);
-    let totalWinnings = 0;
-    let updatedUsers = [...users];
-
-    betsForThisPariu.forEach(bet => {
-        const isWin = bet.optionIndex === winningOptionIndex;
-        const userIndex = updatedUsers.findIndex(u => u.id === bet.userId);
-        if (userIndex === -1) return;
-
-        let user = updatedUsers[userIndex];
-
-        if (isWin) {
-            const odds = pariuToResolve.options[bet.optionIndex].odds;
-            const winnings = bet.amount * odds;
-            totalWinnings += winnings;
-            user = updateBalanceHistory(user, user.balance + winnings);
-
-            if (odds > 5) {
-                user = checkAndAwardAchievement(user, 'PROPHET');
-            }
-        }
-        
-        // Check for streaks
-        const userClosedBets = bets
-            .filter(b => b.userId === user.id)
-            .map(b => {
-                const pariu = updatedPariuri.find(p => p.id === b.pariuId);
-                return { bet: b, pariu };
-            })
-            .filter(item => item.pariu && item.pariu.status === 'closed')
-            .sort((a, b) => b.bet.date - a.bet.date);
-
-        if (userClosedBets.length >= 3) {
-            const last3 = userClosedBets.slice(0, 3);
-            if (last3.every(item => item.pariu?.winningOptionIndex === item.bet.optionIndex)) {
-                user = checkAndAwardAchievement(user, 'STREAK');
-            }
-        }
-
-        if (userClosedBets.length >= 5) {
-             const last5 = userClosedBets.slice(0, 5);
-             if (last5.every(item => item.pariu?.winningOptionIndex !== item.bet.optionIndex)) {
-                user = checkAndAwardAchievement(user, 'JOB');
-            }
-        }
-
-        updatedUsers[userIndex] = user;
-    });
-    
-    setUsers(updatedUsers);
-
-    if (currentUser) {
-        const updatedCurrentUser = updatedUsers.find(u => u.id === currentUser.id);
-        if (updatedCurrentUser) {
-            setCurrentUser(updatedCurrentUser);
-        }
-    }
-
-    if (totalWinnings > 0) {
-        toast({
-            title: 'Diavolul își plătește datoriile!',
-            description: `S-au plătit ${totalWinnings.toFixed(2)} talanți câștigătorilor.`
-        });
-    } else {
-        toast({
-            title: 'Pariu Rezolvat',
-            description: `Rezultatul a fost decis. Nu au existat câștigători de data aceasta.`
-        });
-    }
-  };
-
-  const deletePariu = (pariuId: string) => {
-    if (!currentUser?.isAdmin) {
-      toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorii pot șterge pariuri.' });
-      return;
-    }
-
-    const pariuToDelete = pariuri.find(p => p.id === pariuId);
-    if (!pariuToDelete) {
-      toast({ variant: 'destructive', title: 'Eroare', description: 'Pariul nu a fost găsit.' });
-      return;
-    }
-
-    const hasBetsPlaced = bets.some(bet => bet.pariuId === pariuId);
-    if (hasBetsPlaced) {
-      toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți șterge un pariu pe care s-au plasat deja mize. Rezolvați pariul în schimb.' });
-      return;
-    }
-
-    setPariuri(prev => prev.filter(p => p.id !== pariuId));
-    toast({ title: 'Pariu Șters', description: `Pariul "${pariuToDelete.title}" a fost șters cu succes.` });
   };
   
-  const addComment = (pariuId: string, text: string) => {
+  const addPariu = async (data: NewPariuData) => {
+    const result = await addPariuAction(data);
+    if (result.success) {
+      toast({ title: "S-a scris!", description: result.message });
+      router.refresh();
+    }
+  };
+
+  const placeBet = async (pariuId: string, optionIndex: number, amount: number) => {
     if (!currentUser) return;
-
-    const newComment: Comment = {
-      userId: currentUser.id,
-      text,
-      date: new Date().getTime(),
-    };
-
-    setPariuri(pariuri.map(p => {
-      if (p.id === pariuId) {
-        return { ...p, comments: [...p.comments, newComment] };
+    const result = await placeBetAction(pariuId, optionIndex, amount, currentUser.id);
+    if (result.success) {
+      toast({ description: result.message });
+      if (result.achievement) {
+          toast(result.achievement);
       }
-      return p;
-    }));
-  }
-
-  const balance = currentUser?.balance ?? 0;
-
-  const togglePactControl = () => {
-    setPactControlEnabled(prev => !prev);
-    toast({
-      title: `Modul Pact a fost ${!pactControlEnabled ? 'activat' : 'dezactivat'}`,
-      description: !pactControlEnabled ? 'Utilizatorii pot face pactul o singură dată pentru 666 talanți.' : 'Utilizatorii pot adăuga fonduri liber.'
-    })
-  };
-
-  const toggleAiVoice = () => {
-    setAiVoiceEnabled(prev => !prev);
-    toast({
-      title: `Vocea AI a fost ${aiVoiceEnabled ? 'dezactivată' : 'activată'}.`,
-    })
-  };
-
-  const toggleAdmin = (userId: string) => {
-    if (!currentUser || currentUser.id !== users[0]?.id) {
-        toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate face această acțiune.' });
-        return;
-    }
-    if (userId === users[0]?.id) {
-        toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți modifica statutul administratorului principal.' });
-        return;
-    }
-    
-    const targetUser = users.find(u => u.id === userId);
-    if(targetUser){
-        const isPromoting = !targetUser.isAdmin;
-        const defaultSecondaryAdminPassword = '12345678';
-
-        setUsers(users.map(u => {
-            if (u.id === userId) {
-                if (isPromoting) {
-                    return { ...u, isAdmin: true, password: defaultSecondaryAdminPassword };
-                } else {
-                    const { password, ...demotedUser } = u;
-                    return { ...demotedUser, isAdmin: false };
-                }
-            }
-            return u;
-        }));
-
-        toast({ title: 'Statut Modificat', description: `Utilizatorul ${targetUser.id} este acum ${isPromoting ? 'administrator de pariuri' : 'utilizator standard'}.` });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare Pariu', description: result.message });
     }
   };
 
-  const deleteUser = (userId: string) => {
-    if (!currentUser || currentUser.id !== users[0]?.id) {
-        toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate face această acțiune.' });
-        return;
+  const resolvePariu = async (pariuId: string, winningOptionIndex: number) => {
+    const result = await resolvePariuAction(pariuId, winningOptionIndex);
+    if (result.success) {
+      toast({ title: "Pariu Rezolvat!", description: result.message });
+      result.achievements.forEach(ach => {
+          if (ach.userId === currentUser?.id) {
+              toast({ title: ach.title, description: ach.description });
+          }
+      });
+      router.refresh();
     }
-    if (userId === users[0]?.id) {
-        toast({ variant: 'destructive', title: 'Acțiune Interzisă', description: 'Nu puteți șterge administratorul principal.' });
-        return;
-    }
-    setBets(prev => prev.filter(b => b.userId !== userId));
-    setUsers(prev => prev.filter(u => u.id !== userId));
-    toast({ title: 'Utilizator Șters', description: `Utilizatorul ${userId} și pariurile sale au fost șterse.` });
   };
   
-  const updateAdminPassword = (userId: string, newPassword: string) => {
-    if (!currentUser || currentUser.id !== users[0]?.id) {
-      toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate schimba parole.' });
-      return;
+  const deletePariu = async (pariuId: string) => {
+    if (!currentUser) return;
+    const result = await deletePariuAction(pariuId, currentUser.id);
+    if (result.success) {
+      toast({ title: 'Pariu Șters', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
     }
-    
-    setUsers(prevUsers => prevUsers.map(u => {
-      if (u.id === userId && u.isAdmin) {
-        return { ...u, password: newPassword };
-      }
-      return u;
-    }));
-    
-    if (userId === currentUser.id) {
-        setCurrentUser(prev => prev ? { ...prev, password: newPassword } : null);
+  };
+  
+  const addComment = async (pariuId: string, text: string) => {
+    if (!currentUser) return;
+    const result = await addCommentAction(pariuId, text, currentUser.id);
+    if (result.success) {
+      router.refresh();
     }
-
-    toast({ title: 'Parolă Actualizată!', description: `Parola pentru ${userId} a fost schimbată cu succes.` });
+  };
+  
+  const toggleAdmin = async (userId: string) => {
+    if (!currentUser) return;
+    const result = await toggleAdminAction(userId, currentUser.id);
+     if (result.success) {
+      toast({ title: 'Statut Modificat', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  }
+  
+  const deleteUser = async (userId: string) => {
+    if (!currentUser) return;
+    const result = await deleteUserAction(userId, currentUser.id);
+     if (result.success) {
+      toast({ title: 'Utilizator Șters', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
   }
 
+  const updateAdminPassword = async (userId: string, newPassword: string) => {
+    if (!currentUser) return;
+    const result = await updateAdminPasswordAction(userId, newPassword, currentUser.id);
+    if (result.success) {
+      toast({ title: 'Parolă Actualizată!', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  }
 
+  const togglePactControl = () => setPactControlEnabled(p => !p); // Placeholder
+  const toggleAiVoice = () => setAiVoiceEnabled(p => !p); // Placeholder
+
+  const balance = currentUser ? currentUser.balance : 0;
+  
   const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword };
 
   return (

@@ -1,26 +1,16 @@
-
-"use client";
-
+import { getInitialAppData } from '@/lib/data';
+import { ClientLayout } from './client-layout';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
-import { AppProvider } from '@/contexts/app-context';
-import { useApp } from '@/hooks/use-app';
-import { useEffect } from 'react';
 
-function AppTitleUpdater() {
-  const { appName, slogan } = useApp();
-  useEffect(() => {
-    document.title = `${appName} - ${slogan}`;
-  }, [appName, slogan]);
-  return null;
-}
+export const dynamic = 'force-dynamic'
 
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialData = await getInitialAppData();
+
   return (
     <html lang="ro" suppressHydrationWarning>
       <head>
@@ -36,11 +26,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <AppProvider>
-          <AppTitleUpdater />
+        <ClientLayout initialData={initialData}>
           {children}
-          <Toaster />
-        </AppProvider>
+        </ClientLayout>
       </body>
     </html>
   );
