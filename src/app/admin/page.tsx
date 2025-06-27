@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles, Wand2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -39,6 +39,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Pariu } from '@/contexts/app-context';
 import { generateBetDescription } from '@/ai/flows/generate-bet-description';
+import { generateFullBet } from '@/ai/flows/generate-full-bet-flow';
 
 const formSchema = z.object({
   title: z.string().min(10, {
@@ -61,7 +62,9 @@ export default function AdminPage() {
   const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [isGeneratingFullBet, setIsGeneratingFullBet] = useState(false);
+  const [generationTheme, setGenerationTheme] = useState('');
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [newName, setNewName] = useState(appName);
   const [newSlogan, setNewSlogan] = useState(slogan);
@@ -113,7 +116,7 @@ export default function AdminPage() {
         return;
     }
     
-    setIsGenerating(true);
+    setIsGeneratingDescription(true);
     try {
         const result = await generateBetDescription({ title, options });
         if (result) {
@@ -125,7 +128,40 @@ export default function AdminPage() {
         console.error("Error generating description:", error);
         toast({ variant: 'destructive', title: 'Eroare de la AI', description: 'A apărut o eroare la generarea descrierii.' });
     } finally {
-        setIsGenerating(false);
+        setIsGeneratingDescription(false);
+    }
+  };
+
+  const handleGenerateFullBet = async () => {
+    if (!generationTheme.trim()) {
+        toast({
+            variant: "destructive",
+            title: "Temă necesară",
+            description: "Te rog introdu o temă pentru a genera pariul.",
+        });
+        return;
+    }
+    setIsGeneratingFullBet(true);
+    try {
+        const result = await generateFullBet({ theme: generationTheme });
+        if (result) {
+            form.reset({
+                title: result.title,
+                description: result.description,
+                options: result.options.map(o => ({
+                    text: o.text,
+                    odds: o.odds.toFixed(2),
+                }))
+            });
+            toast({ title: 'Pariu Generat!', description: 'Formularul a fost populat cu un nou pariu divin.' });
+        } else {
+             toast({ variant: 'destructive', title: 'Generare eșuată', description: 'AI-ul nu a putut genera un pariu. Încearcă din nou.' });
+        }
+    } catch (error) {
+        console.error("Error generating full bet:", error);
+        toast({ variant: 'destructive', title: 'Eroare de la AI', description: 'A apărut o eroare la generarea pariului.' });
+    } finally {
+        setIsGeneratingFullBet(false);
     }
   };
 
@@ -248,9 +284,31 @@ export default function AdminPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle className="font-headline text-2xl flex items-center gap-2"><Wand2 /> Generare Automată de Pariuri</CardTitle>
+          <CardDescription>
+            Introdu o temă simplă, iar inteligența artificială va crea un pariu complet: titlu, descriere și opțiuni cu cote.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Input 
+              placeholder="ex: Tabăra de vară de la munte"
+              value={generationTheme}
+              onChange={(e) => setGenerationTheme(e.target.value)}
+              disabled={isGeneratingFullBet}
+            />
+            <Button onClick={handleGenerateFullBet} disabled={isGeneratingFullBet || !generationTheme.trim()} className="w-full sm:w-auto">
+              {isGeneratingFullBet ? 'Se invocă muza...' : 'Generează Pariu'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle className="font-headline text-2xl">Adaugă Pariu Nou</CardTitle>
           <CardDescription>
-            Creează un nou pariu distractiv cu multiple opțiuni și cote.
+            Creează un nou pariu distractiv cu multiple opțiuni și cote, sau folosește generatorul de mai sus.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -276,8 +334,8 @@ export default function AdminPage() {
                   <FormItem>
                     <div className="flex items-center justify-between mb-2">
                         <FormLabel>Descriere</FormLabel>
-                        <Button type="button" variant="outline" size="sm" onClick={handleGenerateDescription} disabled={isGenerating}>
-                            {isGenerating ? 'Se generează...' : <><Sparkles className="mr-2 h-4 w-4" /> Generează cu AI</>}
+                        <Button type="button" variant="outline" size="sm" onClick={handleGenerateDescription} disabled={isGeneratingDescription}>
+                            {isGeneratingDescription ? 'Se generează...' : <><Sparkles className="mr-2 h-4 w-4" /> Generează cu AI</>}
                         </Button>
                     </div>
                     <FormControl>

@@ -6,26 +6,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
-import { askOracle } from '@/ai/flows/oracle-flow';
+import { askOracle, type OracleOutput } from '@/ai/flows/oracle-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OraclePage() {
   const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
+  const [oracleResponse, setOracleResponse] = useState<OracleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasAsked, setHasAsked] = useState(false);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
     setIsLoading(true);
-    setAnswer('');
+    setOracleResponse(null);
     setHasAsked(true);
     try {
       const result = await askOracle(question);
-      setAnswer(result);
+      setOracleResponse(result);
     } catch (error) {
       console.error("Error asking the oracle:", error);
-      setAnswer("Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.");
+      setOracleResponse({
+          text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
+          audio: ''
+      });
     } finally {
       setIsLoading(false);
     }
@@ -56,14 +59,22 @@ export default function OraclePage() {
           </div>
           
           {hasAsked && (
-            <div className="pt-4 text-center">
+            <div className="pt-4 text-center space-y-4">
               {isLoading ? (
                  <div className="space-y-2">
                     <Skeleton className="h-4 w-5/6 mx-auto" />
                     <Skeleton className="h-4 w-4/6 mx-auto" />
                 </div>
-              ) : (
-                <p className="text-lg italic text-accent">&ldquo;{answer}&rdquo;</p>
+              ) : oracleResponse && (
+                <>
+                    <p className="text-lg italic text-accent">&ldquo;{oracleResponse.text}&rdquo;</p>
+                    {oracleResponse.audio && (
+                        <audio controls autoPlay className="w-full mx-auto">
+                            <source src={oracleResponse.audio} type="audio/wav" />
+                            Browser-ul tău nu suportă elementul audio.
+                        </audio>
+                    )}
+                </>
               )}
             </div>
           )}
@@ -72,5 +83,3 @@ export default function OraclePage() {
     </div>
   );
 }
-
-    
