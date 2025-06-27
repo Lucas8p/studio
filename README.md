@@ -110,7 +110,7 @@ docker run -p 3000:3000 --env-file .env.local --name inspairbet-app -d inspairbe
     *   **Environment Variables:** Add a variable for `GOOGLE_API_KEY` and paste your key. Add another for `NEXT_PUBLIC_ADMIN_PASSWORD` and paste your admin password. Alternatively, if you can map a file, you can map your `.env.local` file.
 4.  Click **"Apply"** to start your container.
 
-Your app should now be accessible at `http://<your-unraid-ip>:<host-port>`. You can then use a reverse proxy like Nginx Proxy Manager (available in Community Apps) to point a domain name to it.
+Your app should now be accessible at `http://<your-unraid-ip>:<host-port>`. You can then use a reverse proxy like **Nginx Proxy Manager** (available as a popular app in **Community Applications**) to point a domain name to it and handle SSL certificates automatically with a simple user interface.
 
 ---
 
