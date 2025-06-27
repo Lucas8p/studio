@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -11,8 +10,6 @@ import { Baby, BadgeCheck, Eye, Frown, Skull, TrendingUp } from 'lucide-react';
 import type { AchievementID } from '@/contexts/app-context';
 import type { Icon as LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip as ChartTooltip } from 'recharts';
-import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 
 const achievementDetails: Record<AchievementID, { name: string, description: string, Icon: LucideIcon }> = {
     'NOVICE': { name: "Novicele Credincios", description: "Ai plasat primul tău pariu. Calea spre glorie a început!", Icon: Baby },
@@ -21,71 +18,6 @@ const achievementDetails: Record<AchievementID, { name: string, description: str
     'JOB': { name: "Iov Modern", description: "Ai pierdut 5 pariuri la rând. Răbdarea îți este pusă la încercare.", Icon: Frown },
     'STREAK': { name: "Mana Cerească", description: "Ai câștigat 3 pariuri la rând. Norocul îți surâde!", Icon: TrendingUp }
 };
-
-const chartConfig = {
-    balance: {
-        label: "Balanță",
-        color: "hsl(var(--primary))",
-    },
-} satisfies ChartConfig;
-
-function BalanceChart() {
-    const { currentUser } = useApp();
-    if (!currentUser || currentUser.balanceHistory.length < 2) {
-        return (
-             <div className="h-64 flex items-center justify-center text-muted-foreground text-center p-4">
-                Date insuficiente pentru a afișa graficul. Istoricul balanței tale va apărea aici după ce vei interacționa mai mult cu platforma.
-            </div>
-        )
-    }
-    
-    const chartData = currentUser.balanceHistory.map(entry => ({
-        date: new Date(entry.date).toLocaleDateString('ro-RO'),
-        balance: entry.balance
-    }));
-
-    return (
-        <ChartContainer config={chartConfig} className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                        <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
-                    <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(value) => `${value} T`}/>
-                    <ChartTooltip
-                        cursor={false}
-                        content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                                return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                    <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                        Balanță
-                                        </span>
-                                        <span className="font-bold text-foreground">
-                                        {payload[0].value} T
-                                        </span>
-                                    </div>
-                                    </div>
-                                </div>
-                                )
-                            }
-                            return null
-                        }}
-                    />
-                    <Area type="monotone" dataKey="balance" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorBalance)" />
-                </AreaChart>
-            </ResponsiveContainer>
-        </ChartContainer>
-    );
-}
-
 
 function AchievementsCard() {
     const { currentUser } = useApp();
@@ -199,15 +131,6 @@ function PactCard() {
 export default function ProfilePage() {
     return (
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Evoluția Balanței</CardTitle>
-                    <CardDescription>Graficul credinței și al prudenței tale financiare.</CardDescription>
-                </CardHeader>
-                 <CardContent>
-                     <BalanceChart />
-                 </CardContent>
-            </Card>
             <AchievementsCard />
             <div className="max-w-md mx-auto">
               <PactCard />
@@ -215,5 +138,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-
-    
