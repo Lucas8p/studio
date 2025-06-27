@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, ReactNode } from 'react';
@@ -69,6 +70,8 @@ type AppContextType = {
   addFunds: (amount: number) => void;
   pactControlEnabled: boolean;
   togglePactControl: () => void;
+  aiVoiceEnabled: boolean;
+  toggleAiVoice: () => void;
   toggleAdmin: (userId: string) => void;
   deleteUser: (userId: string) => void;
   deletePariu: (pariuId: string) => void;
@@ -123,6 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [appName, setAppName] = useState('InspaiărBet');
   const [slogan, setSlogan] = useState('Pariază cu inspirație');
   const [pactControlEnabled, setPactControlEnabled] = useState(true);
+  const [aiVoiceEnabled, setAiVoiceEnabled] = useState(true);
   const { toast } = useToast();
 
   const updateUser = (updatedUser: User) => {
@@ -378,8 +382,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const balance = currentUser?.balance ?? 0;
 
   const togglePactControl = () => {
-    setPactControlEnabled(prev => !prev);
-  }
+    togglePactControl();
+    toast({
+      title: `Modul Pact a fost ${!pactControlEnabled ? 'activat' : 'dezactivat'}`,
+      description: !pactControlEnabled ? 'Utilizatorii pot face pactul o singură dată pentru 666 talanți.' : 'Utilizatorii pot adăuga fonduri liber.'
+    })
+  };
+
+  const toggleAiVoice = () => {
+    setAiVoiceEnabled(prev => !prev);
+    toast({
+      title: `Vocea AI a fost ${aiVoiceEnabled ? 'dezactivată' : 'activată'}.`,
+    })
+  };
 
   const toggleAdmin = (userId: string) => {
     if (!currentUser || currentUser.id !== users[0]?.id) {
@@ -413,7 +428,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser, deletePariu, addComment };
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment };
 
   return (
     <AppContext.Provider value={value}>

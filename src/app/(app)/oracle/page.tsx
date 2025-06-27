@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
 import { askOracle, type OracleOutput, type OracleInput } from '@/ai/flows/oracle-flow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useApp } from '@/hooks/use-app';
 
 export default function OraclePage() {
+  const { aiVoiceEnabled } = useApp();
   const [question, setQuestion] = useState('');
   const [oracleResponse, setOracleResponse] = useState<OracleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,9 +23,7 @@ export default function OraclePage() {
     setOracleResponse(null);
     setHasAsked(true);
     try {
-      // @ts-ignore
-      const isSlowConnection = navigator.connection && ['slow-2g', '2g'].includes(navigator.connection.effectiveType);
-      const input: OracleInput = { question, generateAudio: !isSlowConnection };
+      const input: OracleInput = { question, generateAudio: aiVoiceEnabled };
       const result = await askOracle(input);
       setOracleResponse(result);
     } catch (error) {

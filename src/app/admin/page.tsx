@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles, Wand2 } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles, Wand2, MessageSquareQuote } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -59,7 +59,7 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu } = useApp();
+  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu, aiVoiceEnabled, toggleAiVoice } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
@@ -203,14 +203,6 @@ export default function AdminPage() {
     }
     toast({ title: "Setări salvate", description: `Numele și sloganul platformei au fost actualizate.` });
   };
-  
-  const handlePactToggle = () => {
-    togglePactControl();
-    toast({
-      title: `Modul Pact a fost ${!pactControlEnabled ? 'activat' : 'dezactivat'}`,
-      description: !pactControlEnabled ? 'Utilizatorii pot face pactul o singură dată pentru 666 talanți.' : 'Utilizatorii pot adăuga fonduri liber.'
-    })
-  }
   
   const handleDeleteUser = () => {
       if (userToDelete) {
@@ -477,23 +469,36 @@ export default function AdminPage() {
           
           <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Controlul Pactului</CardTitle>
-                <CardDescription>Gestionează modul în care utilizatorii pot adăuga fonduri.</CardDescription>
+              <CardTitle className="font-headline text-2xl">Setări Avansate</CardTitle>
+              <CardDescription>Gestionează funcționalitățile speciale ale platformei.</CardDescription>
             </CardHeader>
-            <CardContent>
-                <div className="flex items-center space-x-4 rounded-md border p-4">
-                    <Skull />
-                    <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">Mod Pact Unic (666 Talanți)</p>
-                        <p className="text-sm text-muted-foreground">
-                            Dacă este activat, fiecare utilizator poate face pactul o singură dată pentru a primi exact 666 talanți.
-                        </p>
-                    </div>
-                    <Switch
-                        checked={pactControlEnabled}
-                        onCheckedChange={handlePactToggle}
-                    />
-                </div>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-4 rounded-md border p-4">
+                  <MessageSquareQuote />
+                  <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">Voce AI pentru Oracol & Sfatul Zilei</p>
+                      <p className="text-sm text-muted-foreground">
+                          Activează/dezactivează generarea audio pentru răspunsurile AI.
+                      </p>
+                  </div>
+                  <Switch
+                      checked={aiVoiceEnabled}
+                      onCheckedChange={toggleAiVoice}
+                  />
+              </div>
+              <div className="flex items-center space-x-4 rounded-md border p-4">
+                  <Skull />
+                  <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">Mod Pact Unic (666 Talanți)</p>
+                      <p className="text-sm text-muted-foreground">
+                          Dacă este activat, fiecare utilizator poate face pactul o singură dată.
+                      </p>
+                  </div>
+                  <Switch
+                      checked={pactControlEnabled}
+                      onCheckedChange={togglePactControl}
+                  />
+              </div>
             </CardContent>
           </Card>
         </>

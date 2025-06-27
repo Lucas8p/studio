@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 
 function DailyAdviceCard() {
+  const { aiVoiceEnabled } = useApp();
   const [dailyAdvice, setDailyAdvice] = useState<DailyAdviceOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasAsked, setHasAsked] = useState(false);
@@ -26,9 +27,7 @@ function DailyAdviceCard() {
     setHasAsked(true);
     setDailyAdvice(null);
     try {
-      // @ts-ignore
-      const isSlowConnection = navigator.connection && ['slow-2g', '2g'].includes(navigator.connection.effectiveType);
-      const input: DailyAdviceInput = { generateAudio: !isSlowConnection };
+      const input: DailyAdviceInput = { generateAudio: aiVoiceEnabled };
       const result = await getDailyAdvice(input);
       setDailyAdvice(result);
     } catch (error) {
