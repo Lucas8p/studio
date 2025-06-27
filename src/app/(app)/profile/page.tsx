@@ -131,10 +131,10 @@ function PactCard() {
 export default function ProfilePage() {
     return (
         <div className="space-y-8">
-            <AchievementsCard />
             <div className="max-w-md mx-auto">
               <PactCard />
             </div>
+            <AchievementsCard />
         </div>
     );
 }
