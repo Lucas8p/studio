@@ -78,7 +78,7 @@ const oracleFlow = ai.defineFlow(
                 responseModalities: ['AUDIO'],
                 speechConfig: {
                     voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Algenib' }, // A deep, suitable voice
+                        prebuiltVoiceConfig: { voiceName: 'Antares' }, // A deeper, more mysterious voice
                     },
                 },
             },
