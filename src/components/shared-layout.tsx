@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
 import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, MessageSquareQuote } from 'lucide-react';
 import {
@@ -24,13 +24,21 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
 function NavMenu() {
-  const pathname = usePathname();
-  const { currentUser } = useApp();
+  const { currentUser, appName, slogan } = useApp();
   const { setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
+
+  // This is a simplified example. In a real app, you would have a more robust routing and navigation system.
+  // We'll use the pathname to determine the active link.
+  const [pathname, setPathname] = React.useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPathname(window.location.pathname);
+    }
+  }, []);
 
   return (
     <SidebarMenu>
@@ -89,23 +97,28 @@ function NavMenu() {
 }
 
 export function SharedLayout({ children, title, showBalance = false }: { children: ReactNode, title: string, showBalance?: boolean }) {
-  const { balance, currentUser, logout, appName, slogan } = useApp();
+  const { balance, currentUser, logout, appName, slogan, isLoading } = useApp();
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!isLoading && !currentUser) {
       router.replace('/login');
     }
-  }, [currentUser, router]);
+  }, [currentUser, router, isLoading]);
 
-  if (!currentUser) {
+  if (isLoading || !currentUser) {
     return (
         <div className="flex h-screen items-center justify-center bg-background">
-            <div className="w-full max-w-md space-y-4">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
+            <div className="w-full max-w-md space-y-4 p-4">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                </div>
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
             </div>
         </div>
     );

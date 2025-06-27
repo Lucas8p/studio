@@ -80,6 +80,7 @@ export type InitialData = {
 type AppContextType = {
   users: User[];
   currentUser: User | null;
+  isLoading: boolean;
   login: (username: string, password?: string) => Promise<boolean>;
   logout: () => void;
   appName: string;
@@ -114,37 +115,33 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
   const [pariuri, setPariuri] = useState<Pariu[]>(initialData.pariuri);
   const [bets, setBets] = useState<Bet[]>(initialData.bets);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [appName, setAppNameState] = useState(initialData.appName);
   const [slogan, setSloganState] = useState(initialData.slogan);
   const [pactControlEnabled, setPactControlEnabled] = useState(initialData.pactControlEnabled);
   const [aiVoiceEnabled, setAiVoiceEnabled] = useState(initialData.aiVoiceEnabled);
 
   useEffect(() => {
-    // Persist and retrieve currentUser across reloads
+    setIsLoading(true);
+
+    setUsers(initialData.users);
+    setPariuri(initialData.pariuri);
+    setBets(initialData.bets);
+
     const storedUserId = sessionStorage.getItem('currentUser');
     if (storedUserId) {
       const user = initialData.users.find(u => u.id === storedUserId);
       if (user) {
         setCurrentUser(user);
-      }
-    }
-  }, [initialData.users]);
-  
-  useEffect(() => {
-    // Update client state when initialData changes after a refresh
-    setUsers(initialData.users);
-    setPariuri(initialData.pariuri);
-    setBets(initialData.bets);
-    const storedUserId = sessionStorage.getItem('currentUser');
-    if (storedUserId) {
-      const user = initialData.users.find(u => u.id === storedUserId);
-       if (user) {
-        setCurrentUser(user);
       } else {
-        // User might have been deleted, so log out
-        logout();
+        sessionStorage.removeItem('currentUser');
+        setCurrentUser(null);
       }
+    } else {
+      setCurrentUser(null);
     }
+
+    setIsLoading(false);
   }, [initialData]);
 
   const setAppName = (name: string) => setAppNameState(name); // Placeholder for future persistence
@@ -276,7 +273,7 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
 
   const balance = currentUser ? currentUser.balance : 0;
   
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword };
+  const value = { users, currentUser, isLoading, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword };
 
   return (
     <AppContext.Provider value={value}>
