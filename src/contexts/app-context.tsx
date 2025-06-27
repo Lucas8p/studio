@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useState, ReactNode } from 'react';
@@ -121,7 +120,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pariuri, setPariuri] = useState<Pariu[]>(initialPariuri);
   const [bets, setBets] = useState<Bet[]>([]);
-  const [appName, setAppName] = useState('InspireBet');
+  const [appName, setAppName] = useState('InspaiărBet');
   const [slogan, setSlogan] = useState('Pariază cu inspirație');
   const [pactControlEnabled, setPactControlEnabled] = useState(true);
   const { toast } = useToast();

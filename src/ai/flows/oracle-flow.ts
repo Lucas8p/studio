@@ -16,7 +16,7 @@ export async function askOracle(question: string): Promise<string> {
 const prompt = ai.definePrompt({
     name: 'oraclePrompt',
     input: { schema: z.string() },
-    prompt: `Ești un oracol criptic, înțelept și cu un strop de umor pentru o platformă divină de pariuri numită InspireBet.
+    prompt: `Ești un oracol criptic, înțelept și cu un strop de umor pentru o platformă divină de pariuri numită InspaiărBet.
 Un utilizator a venit la tine în căutare de înțelepciune.
 Întrebarea utilizatorului: "{{{input}}}"
 
