@@ -163,6 +163,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
       
       if (!user) { // First user ever, they become primary admin
+          if (password !== adminPassword) {
+            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
+            return false;
+          }
          user = { 
             id: username, 
             balance: 1000, 
@@ -172,15 +176,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             balanceHistory: [{ date: new Date().getTime(), balance: 1000 }],
             password: adminPassword
           };
-          if (password !== adminPassword) {
-            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
-            return false;
-          }
           setUsers(prev => [...prev, user!]);
           toast({ title: `Bine ai venit, Administrator Principal ${username}!`, description: "Contul tău a fost creat." });
       } else { // Existing admin user
-        const correctPassword = user.password || (user.id === users[0].id ? adminPassword : undefined);
-        if (password !== correctPassword) {
+        if (password !== user.password) {
             toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
             return false;
         }
@@ -445,8 +444,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
     const targetUser = users.find(u => u.id === userId);
     if(targetUser){
-        setUsers(users.map(u => u.id === userId ? { ...u, isAdmin: !u.isAdmin } : u));
-        toast({ title: 'Statut Modificat', description: `Utilizatorul ${targetUser.id} este acum ${!targetUser.isAdmin ? 'administrator de pariuri' : 'utilizator standard'}.` });
+        const isPromoting = !targetUser.isAdmin;
+        const defaultSecondaryAdminPassword = '12345678';
+
+        setUsers(users.map(u => {
+            if (u.id === userId) {
+                if (isPromoting) {
+                    return { ...u, isAdmin: true, password: defaultSecondaryAdminPassword };
+                } else {
+                    const { password, ...demotedUser } = u;
+                    return { ...demotedUser, isAdmin: false };
+                }
+            }
+            return u;
+        }));
+
+        toast({ title: 'Statut Modificat', description: `Utilizatorul ${targetUser.id} este acum ${isPromoting ? 'administrator de pariuri' : 'utilizator standard'}.` });
     }
   };
 
