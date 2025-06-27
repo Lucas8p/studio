@@ -121,9 +121,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pariuri, setPariuri] = useState<Pariu[]>(initialPariuri);
   const [bets, setBets] = useState<Bet[]>([]);
-  const [appName, setAppName] = useState('FaithBet');
-  const [slogan, setSlogan] = useState('Pariază cu credință');
-  const [pactControlEnabled, setPactControlEnabled] = useState(false);
+  const [appName, setAppName] = useState('InspireBet');
+  const [slogan, setSlogan] = useState('Pariază cu inspirație');
+  const [pactControlEnabled, setPactControlEnabled] = useState(true);
   const { toast } = useToast();
 
   const updateUser = (updatedUser: User) => {
@@ -422,5 +422,3 @@ export function AppProvider({ children }: { children: ReactNode }) {
     </AppContext.Provider>
   );
 }
-
-    
