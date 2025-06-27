@@ -1,6 +1,7 @@
 
 "use client";
 
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
@@ -172,5 +173,3 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
     </SidebarProvider>
   );
 }
-
-    
