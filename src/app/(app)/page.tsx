@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -23,7 +24,7 @@ function PactAdvertisement() {
         <Skull className="h-12 w-12 flex-shrink-0 text-destructive animate-pulse" />
         <div>
           <CardTitle className="font-headline text-xl text-destructive">O Ofertă de Nerefuzat</CardTitle>
-          <CardDescription className="text-destructive/80">Fonduri limitate? O singură dată, poți încheia un pact pentru avere instantanee.</CardDescription>
+          <CardDescription className="text-destructive/80">Fonduri limitate? Acceptă semnul fiarei și încheie un pact pentru avere instantanee.</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="pb-4">

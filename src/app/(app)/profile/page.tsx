@@ -49,7 +49,7 @@ function PactCard() {
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">Pact cu Întunericul</CardTitle>
-                <CardDescription>Măcar aici să ai bani dacă în viața reală bate vântul în portofel.</CardDescription>
+                <CardDescription>Acceptă semnul fiarei pentru a primi bogății instant. Măcar aici să ai bani dacă în viața reală bate vântul în portofel.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div>
