@@ -55,7 +55,7 @@ export type NewPariuData = {
 type AppContextType = {
   users: User[];
   currentUser: User | null;
-  login: (username: string) => void;
+  login: (username: string, password?: string) => boolean;
   logout: () => void;
   appName: string;
   setAppName: (name: string) => void;
@@ -151,10 +151,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ...user, balance: newBalance, balanceHistory: updatedHistory };
   }
 
-  const login = (username: string) => {
+  const login = (username: string, password?: string): boolean => {
     let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
+    const isFirstUser = users.length === 0;
+
+    const isAdmin = user?.isAdmin || (isFirstUser && username.trim() !== '');
+
+    if (isAdmin) {
+      const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+      if (password !== adminPassword) {
+        toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
+        return false;
+      }
+    }
+
     if (!user) {
-      const isAdmin = users.length === 0;
       const initialBalance = 1000;
       user = { 
         id: username, 
@@ -169,7 +180,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else {
       toast({ title: `Bine ai revenit, ${username}!` });
     }
+    
     setCurrentUser(user);
+    return true;
   };
 
   const logout = () => {
