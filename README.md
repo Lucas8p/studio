@@ -58,10 +58,10 @@ To keep your application running permanently, it's best to use a process manager
 npm install pm2 -g
 
 # Start the Next.js app with pm2
-pm2 start npm --name "inspairbet" -- start
+pm2 start npm --name "faithbet" -- start
 ```
 
-This command will start your app, name it "inspairbet", and ensure it restarts automatically if it crashes or the server reboots. You can check its status with `pm2 list`.
+This command will start your app, name it "faithbet", and ensure it restarts automatically if it crashes or the server reboots. You can check its status with `pm2 list`.
 
 ### 5. Configure a Reverse Proxy
 
@@ -80,22 +80,23 @@ This project includes a `Dockerfile` to make it easy to deploy as a Docker conta
 First, ensure you have Docker installed on a machine (it can be your local computer or directly on Unraid via SSH). Navigate to the project's root directory and run:
 
 ```bash
-docker build -t inspairbet .
+# Don't forget the dot (.) at the end! It tells Docker where to find your files.
+docker build -t faithbet .
 ```
 
-This command builds a Docker image from the `Dockerfile` and tags it with the name `inspairbet`.
+This command builds a Docker image from the `Dockerfile` and tags it with the name `faithbet`.
 
 **B. Running the Container:**
 
 To run the container, you need to provide your `.env.local` file with the `GOOGLE_API_KEY` and `NEXT_PUBLIC_ADMIN_PASSWORD`. The easiest way is to use the `--env-file` flag.
 
 ```bash
-docker run -p 3000:3000 --env-file .env.local --name inspairbet-app -d inspairbet
+docker run -p 3000:3000 --env-file .env.local --name faithbet-app -d faithbet
 ```
 
 *   `-p 3000:3000`: Maps port 3000 from inside the container to port 3000 on your server.
 *   `--env-file .env.local`: Tells Docker to load environment variables from your `.env.local` file.
-*   `--name inspairbet-app`: Gives your running container a friendly name.
+*   `--name faithbet-app`: Gives your running container a friendly name.
 *   `-d`: Runs the container in detached mode (in the background).
 
 **C. On Unraid:**
@@ -103,8 +104,8 @@ docker run -p 3000:3000 --env-file .env.local --name inspairbet-app -d inspairbe
 1.  Go to the **"Docker"** tab in your Unraid dashboard.
 2.  Click **"Add Container"**.
 3.  You'll be presented with a template to fill out.
-    *   **Name:** `inspairbet-app` (or whatever you like)
-    *   **Repository:** `inspairbet` (the name you used when building the image)
+    *   **Name:** `faithbet-app` (or whatever you like)
+    *   **Repository:** `faithbet` (the name you used when building the image)
     *   **Network Type:** Bridge
     *   **Port Mapping:** Click "Add another Path, Port, Variable...", set "Container Port" to `3000` and "Host Port" to `3000` (or another available port on your Unraid server).
     *   **Environment Variables:** Add a variable for `GOOGLE_API_KEY` and paste your key. Add another for `NEXT_PUBLIC_ADMIN_PASSWORD` and paste your admin password. Alternatively, if you can map a file, you can map your `.env.local` file.
