@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getDailyAdvice, type DailyAdviceOutput } from '@/ai/flows/daily-advice-flow';
+import { getDailyAdvice, type DailyAdviceOutput, type DailyAdviceInput } from '@/ai/flows/daily-advice-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -26,13 +26,15 @@ function DailyAdviceCard() {
     setHasAsked(true);
     setDailyAdvice(null);
     try {
-      const result = await getDailyAdvice();
+      // @ts-ignore
+      const isSlowConnection = navigator.connection && ['slow-2g', '2g'].includes(navigator.connection.effectiveType);
+      const input: DailyAdviceInput = { generateAudio: !isSlowConnection };
+      const result = await getDailyAdvice(input);
       setDailyAdvice(result);
     } catch (error) {
       console.error("Error getting daily advice:", error);
       setDailyAdvice({
         text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
-        audio: ''
       });
     } finally {
       setIsLoading(false);

@@ -1,8 +1,9 @@
 'use server';
 /**
- * @fileOverview A Genkit flow to generate a "Tip of the Day" with audio.
+ * @fileOverview A Genkit flow to generate a "Tip of the Day" with optional audio.
  *
- * - getDailyAdvice - A function that generates a cryptic piece of advice with audio.
+ * - getDailyAdvice - A function that generates a cryptic piece of advice, with or without audio.
+ * - DailyAdviceInput - The input type for the getDailyAdvice function.
  * - DailyAdviceOutput - The return type for the getDailyAdvice function.
  */
 
@@ -10,14 +11,19 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import wav from 'wav';
 
+const DailyAdviceInputSchema = z.object({
+  generateAudio: z.boolean().optional().default(true),
+});
+export type DailyAdviceInput = z.infer<typeof DailyAdviceInputSchema>;
+
 const DailyAdviceOutputSchema = z.object({
   text: z.string().describe("The cryptic text advice."),
-  audio: z.string().describe("A data URI of the spoken advice in WAV format."),
+  audio: z.string().describe("A data URI of the spoken advice in WAV format.").optional(),
 });
 export type DailyAdviceOutput = z.infer<typeof DailyAdviceOutputSchema>;
 
-export async function getDailyAdvice(): Promise<DailyAdviceOutput> {
-    return dailyAdviceFlow();
+export async function getDailyAdvice(input: DailyAdviceInput = {}): Promise<DailyAdviceOutput> {
+    return dailyAdviceFlow(input);
 }
 
 const textPrompt = ai.definePrompt({
@@ -61,43 +67,52 @@ async function toWav(
 const dailyAdviceFlow = ai.defineFlow(
     {
         name: 'dailyAdviceFlow',
-        inputSchema: z.void(),
+        inputSchema: DailyAdviceInputSchema,
         outputSchema: DailyAdviceOutputSchema,
     },
-    async () => {
+    async (input) => {
         // 1. Generate text
         const textResponse = await textPrompt();
         const textOutput = textResponse.text || `Soarta este indecisă astăzi. Încearcă mai târziu.`;
 
-        // 2. Generate audio
-        const { media } = await ai.generate({
-            model: 'googleai/gemini-2.5-flash-preview-tts',
-            config: {
-                responseModalities: ['AUDIO'],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Algenib' }, // Deep, grave voice
-                    },
-                },
-            },
-            prompt: textOutput,
-        });
-
-        if (!media) {
-            throw new Error('TTS media generation failed for daily advice.');
+        if (!input.generateAudio) {
+            return { text: textOutput };
         }
 
-        const audioBuffer = Buffer.from(
-            media.url.substring(media.url.indexOf(',') + 1),
-            'base64'
-        );
-        
-        const wavBase64 = await toWav(audioBuffer);
-        const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+        // 2. Generate audio
+        try {
+            const { media } = await ai.generate({
+                model: 'googleai/gemini-2.5-flash-preview-tts',
+                config: {
+                    responseModalities: ['AUDIO'],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: 'Algenib' }, // Deep, grave voice
+                        },
+                    },
+                },
+                prompt: textOutput,
+            });
 
-        return {
-            text: textOutput,
-            audio: audioDataUri,
-        };
+            if (!media) {
+                return { text: textOutput };
+            }
+
+            const audioBuffer = Buffer.from(
+                media.url.substring(media.url.indexOf(',') + 1),
+                'base64'
+            );
+            
+            const wavBase64 = await toWav(audioBuffer);
+            const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+
+            return {
+                text: textOutput,
+                audio: audioDataUri,
+            };
+        } catch (error) {
+            console.error("TTS generation failed for daily advice, returning text only.", error);
+            return { text: textOutput };
+        }
     }
 );

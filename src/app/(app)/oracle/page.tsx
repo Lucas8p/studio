@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
-import { askOracle, type OracleOutput } from '@/ai/flows/oracle-flow';
+import { askOracle, type OracleOutput, type OracleInput } from '@/ai/flows/oracle-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OraclePage() {
@@ -21,13 +21,15 @@ export default function OraclePage() {
     setOracleResponse(null);
     setHasAsked(true);
     try {
-      const result = await askOracle(question);
+      // @ts-ignore
+      const isSlowConnection = navigator.connection && ['slow-2g', '2g'].includes(navigator.connection.effectiveType);
+      const input: OracleInput = { question, generateAudio: !isSlowConnection };
+      const result = await askOracle(input);
       setOracleResponse(result);
     } catch (error) {
       console.error("Error asking the oracle:", error);
       setOracleResponse({
           text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
-          audio: ''
       });
     } finally {
       setIsLoading(false);
