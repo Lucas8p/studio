@@ -87,11 +87,11 @@ const initialPariuri: Pariu[] = [
   },
   {
     id: '3',
-    title: 'Va reuși spălătoria auto a grupului de tineri să curețe un tractor noroios?',
-    description: "Tinerii se luptă cu forțele pământului. Va triumfa spuma activă împotriva noroiului ancestral sau va rămâne tractorul un monument al muncii de la câmp? Credința ta poate înclina balanța.",
+    title: 'Vor ajunge pachețelele de la agapă la toată lumea?',
+    description: "O minune modernă a înmulțirii... sau un test de logistică divină. Va reuși comitetul de organizare să satureze mulțimea sau vor rămâne unii flămânzi, meditând la pilda celor cinci pâini și doi pești?",
     options: [
-        { text: 'Da, ei au puterea!', odds: 1.3 },
-        { text: 'Nu, noroiul este veșnic!', odds: 3.0 }
+        { text: 'Da, se satură toți și mai rămâne', odds: 1.3 },
+        { text: 'Nu, ultimii vor posti', odds: 3.0 }
     ],
     status: 'closed',
     winningOptionIndex: 0,
