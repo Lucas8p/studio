@@ -63,7 +63,6 @@ async function toWav(
   });
 }
 
-
 const dailyAdviceFlow = ai.defineFlow(
     {
         name: 'dailyAdviceFlow',
@@ -71,50 +70,48 @@ const dailyAdviceFlow = ai.defineFlow(
         outputSchema: DailyAdviceOutputSchema,
     },
     async (input) => {
-        const generateAudio = input?.generateAudio ?? true;
-
         // 1. Generate text
         const textResponse = await textPrompt();
         const textOutput = textResponse.text || `Soarta este indecisă astăzi. Încearcă mai târziu.`;
 
-        if (!generateAudio) {
-            return { text: textOutput };
-        }
-
-        // 2. Generate audio
-        try {
-            const { media } = await ai.generate({
-                model: 'googleai/gemini-2.5-flash-preview-tts',
-                config: {
-                    responseModalities: ['AUDIO'],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: 'Algenib' }, // Deep, grave voice
+        // 2. Conditionally generate audio if the flag is true
+        if (input.generateAudio) {
+            try {
+                const { media } = await ai.generate({
+                    model: 'googleai/gemini-2.5-flash-preview-tts',
+                    config: {
+                        responseModalities: ['AUDIO'],
+                        speechConfig: {
+                            voiceConfig: {
+                                // A deep, grave voice for a wise, Oogway-like feel
+                                prebuiltVoiceConfig: { voiceName: 'Algenib' },
+                            },
                         },
                     },
-                },
-                prompt: textOutput,
-            });
+                    prompt: textOutput,
+                });
 
-            if (!media) {
-                return { text: textOutput };
+                if (media) {
+                    const audioBuffer = Buffer.from(
+                        media.url.substring(media.url.indexOf(',') + 1),
+                        'base64'
+                    );
+                    
+                    const wavBase64 = await toWav(audioBuffer);
+                    const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+
+                    return {
+                        text: textOutput,
+                        audio: audioDataUri,
+                    };
+                }
+            } catch (error) {
+                console.error("TTS generation failed for daily advice, returning text only.", error);
+                // Fall through to return text only if TTS fails
             }
-
-            const audioBuffer = Buffer.from(
-                media.url.substring(media.url.indexOf(',') + 1),
-                'base64'
-            );
-            
-            const wavBase64 = await toWav(audioBuffer);
-            const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
-
-            return {
-                text: textOutput,
-                audio: audioDataUri,
-            };
-        } catch (error) {
-            console.error("TTS generation failed for daily advice, returning text only.", error);
-            return { text: textOutput };
         }
+
+        // 3. Return text-only response by default or if audio generation fails
+        return { text: textOutput };
     }
 );

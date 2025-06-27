@@ -74,50 +74,49 @@ const oracleFlow = ai.defineFlow(
     },
     async (input) => {
         const { question } = input;
-        const generateAudio = input.generateAudio ?? true;
 
         // 1. Generate the text response
         const textResponse = await textPrompt(question);
         const textOutput = textResponse.text || `Stelele sunt neclare în privința asta... Încearcă din nou când soarta va fi mai limpede.`;
 
-        if (!generateAudio) {
-            return { text: textOutput };
-        }
-
-        // 2. Generate the audio response from the text
-        try {
-            const { media } = await ai.generate({
-                model: 'googleai/gemini-2.5-flash-preview-tts',
-                config: {
-                    responseModalities: ['AUDIO'],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: 'Umbriel' }, // A deeper, more mysterious voice
+        // 2. Conditionally generate audio if the flag is true
+        if (input.generateAudio) {
+            try {
+                const { media } = await ai.generate({
+                    model: 'googleai/gemini-2.5-flash-preview-tts',
+                    config: {
+                        responseModalities: ['AUDIO'],
+                        speechConfig: {
+                            voiceConfig: {
+                                // A deeper, more mysterious voice for the oracle
+                                prebuiltVoiceConfig: { voiceName: 'Umbriel' },
+                            },
                         },
                     },
-                },
-                prompt: textOutput,
-            });
+                    prompt: textOutput,
+                });
 
-            if (!media) {
-                return { text: textOutput };
+                if (media) {
+                    const audioBuffer = Buffer.from(
+                        media.url.substring(media.url.indexOf(',') + 1),
+                        'base64'
+                    );
+                    
+                    const wavBase64 = await toWav(audioBuffer);
+                    const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+
+                    return {
+                        text: textOutput,
+                        audio: audioDataUri,
+                    };
+                }
+            } catch (error) {
+                console.error("TTS generation failed for oracle, returning text only.", error);
+                // Fall through to return text only if TTS fails
             }
-
-            const audioBuffer = Buffer.from(
-                media.url.substring(media.url.indexOf(',') + 1),
-                'base64'
-            );
-            
-            const wavBase64 = await toWav(audioBuffer);
-            const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
-
-            return {
-                text: textOutput,
-                audio: audioDataUri,
-            };
-        } catch (error) {
-            console.error("TTS generation failed for oracle, returning text only.", error);
-            return { text: textOutput };
         }
+
+        // 3. Return text-only response by default or if audio generation fails
+        return { text: textOutput };
     }
 );
