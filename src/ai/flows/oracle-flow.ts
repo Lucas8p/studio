@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A Genkit flow that acts as a cryptic oracle and provides an audio response.
@@ -78,7 +77,7 @@ const oracleFlow = ai.defineFlow(
                 responseModalities: ['AUDIO'],
                 speechConfig: {
                     voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Antares' }, // A deeper, more mysterious voice
+                        prebuiltVoiceConfig: { voiceName: 'Umbriel' }, // A deeper, more mysterious voice
                     },
                 },
             },
