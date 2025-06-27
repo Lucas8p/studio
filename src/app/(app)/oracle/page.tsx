@@ -9,11 +9,9 @@ import { Sparkles } from 'lucide-react';
 import { askOracle, type OracleOutput, type OracleInput } from '@/ai/flows/oracle-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/hooks/use-app';
-import { useToast } from '@/hooks/use-toast';
 
 export default function OraclePage() {
   const { aiVoiceEnabled } = useApp();
-  const { toast } = useToast();
   const [question, setQuestion] = useState('');
   const [oracleResponse, setOracleResponse] = useState<OracleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,21 +26,8 @@ export default function OraclePage() {
       const input: OracleInput = { question, generateAudio: aiVoiceEnabled };
       const result = await askOracle(input);
       setOracleResponse(result);
-
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Eroare Voce AI',
-          description: result.error,
-        });
-      }
     } catch (error: any) {
       console.error("Error asking the oracle:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Eroare Necunoscută',
-        description: `A apărut o eroare neașteptată: ${error.message}`,
-      });
       setOracleResponse({
           text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
       });

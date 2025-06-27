@@ -14,12 +14,10 @@ import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles, Wand2 } from 'lucide
 import { cn } from '@/lib/utils';
 import { getDailyAdvice, type DailyAdviceOutput, type DailyAdviceInput } from '@/ai/flows/daily-advice-flow';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 
 function DailyAdviceCard() {
   const { aiVoiceEnabled } = useApp();
-  const { toast } = useToast();
   const [dailyAdvice, setDailyAdvice] = useState<DailyAdviceOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasAsked, setHasAsked] = useState(false);
@@ -32,21 +30,8 @@ function DailyAdviceCard() {
       const input: DailyAdviceInput = { generateAudio: aiVoiceEnabled };
       const result = await getDailyAdvice(input);
       setDailyAdvice(result);
-
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Eroare Voce AI',
-          description: result.error,
-        });
-      }
     } catch (error: any) {
       console.error("Error getting daily advice:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Eroare Necunoscută',
-        description: `A apărut o eroare neașteptată: ${error.message}`,
-      });
       setDailyAdvice({
         text: "Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.",
       });

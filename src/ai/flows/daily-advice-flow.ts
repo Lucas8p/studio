@@ -19,7 +19,6 @@ export type DailyAdviceInput = z.infer<typeof DailyAdviceInputSchema>;
 const DailyAdviceOutputSchema = z.object({
   text: z.string().describe("The cryptic text advice."),
   audio: z.string().describe("A data URI of the spoken advice in WAV format.").optional(),
-  error: z.string().describe("An error message if audio generation failed.").optional(),
 });
 export type DailyAdviceOutput = z.infer<typeof DailyAdviceOutputSchema>;
 
@@ -109,15 +108,11 @@ const dailyAdviceFlow = ai.defineFlow(
                     audio: audioDataUri,
                 };
             }
-            // This case might occur if TTS returns no data but doesn't throw.
-             return { text: textOutput, error: "Generarea audio a returnat un răspuns gol." };
         } catch (error: any) {
             console.error("TTS generation failed for daily advice, returning text only.", error);
-            // Return the error message to the client for debugging.
-            return { 
-                text: textOutput, 
-                error: `Generarea audio a eșuat. Asigurați-vă că ați configurat corect cheia API Google. Detalii: ${error.message || 'Eroare necunoscută.'}`
-            };
         }
+
+        // Return text-only if audio generation fails or returns no data
+        return { text: textOutput };
     }
 );
