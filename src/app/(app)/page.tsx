@@ -36,9 +36,9 @@ function DailyAdviceCard() {
   };
 
   return (
-    <Card className="border-accent/30 bg-accent/10 text-accent-foreground">
+    <Card className="border-accent/30 bg-accent/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-headline text-lg">
+        <CardTitle className="flex items-center justify-center gap-2 text-center font-headline text-lg text-accent">
           <Wand2 className="h-5 w-5" />
           Sfatul Zilei
         </CardTitle>
@@ -52,7 +52,7 @@ function DailyAdviceCard() {
         ) : isLoading ? (
           <Skeleton className="h-5 w-3/4 mx-auto" />
         ) : (
-          <p className="italic">&ldquo;{advice}&rdquo;</p>
+          <p className="italic text-foreground/90">&ldquo;{advice}&rdquo;</p>
         )}
       </CardContent>
     </Card>
