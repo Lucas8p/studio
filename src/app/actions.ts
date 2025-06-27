@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -7,6 +8,8 @@ import {
   savePariuri,
   getBets,
   saveBets,
+  getSettings,
+  saveSettings,
 } from '@/lib/data';
 import type {
   User,
@@ -15,6 +18,7 @@ import type {
   NewPariuData,
   AchievementID,
   Comment,
+  AppSettings,
 } from '@/contexts/app-context';
 
 // --- Helper Functions ---
@@ -98,8 +102,11 @@ export async function loginAction(username: string, password?: string) {
   return { success: true, user, message: `Bine ai revenit, ${username}!` };
 };
 
-export async function addFundsAction(userId: string, amount: number, pactControlEnabled: boolean) {
+export async function addFundsAction(userId: string, amount: number) {
     const users = await getUsers();
+    const settings = await getSettings();
+    const { pactControlEnabled } = settings;
+
     const currentUser = users.find(u => u.id === userId);
     if (!currentUser) return { success: false, message: 'Utilizator negăsit.' };
 
@@ -377,4 +384,17 @@ export async function updateAdminPasswordAction(targetUserId: string, newPasswor
     await saveUsers(updatedUsers);
     
     return { success: true, message: `Parola pentru ${targetUserId} a fost schimbată cu succes.` };
+}
+
+
+export async function updateSettingsAction(newSettings: Partial<AppSettings>) {
+    try {
+        const currentSettings = await getSettings();
+        const updatedSettings = { ...currentSettings, ...newSettings };
+        await saveSettings(updatedSettings);
+        return { success: true, message: 'Setările au fost actualizate.' };
+    } catch (error) {
+        console.error("Failed to update settings:", error);
+        return { success: false, message: 'A apărut o eroare la salvarea setărilor.' };
+    }
 }

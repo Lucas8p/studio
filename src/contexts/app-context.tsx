@@ -15,6 +15,7 @@ import {
   toggleAdminAction,
   deleteUserAction,
   updateAdminPasswordAction,
+  updateSettingsAction,
 } from '@/app/actions';
 
 export type AchievementID = 'NOVICE' | 'PACT_MAKER' | 'PROPHET' | 'JOB' | 'STREAK';
@@ -66,14 +67,18 @@ export type NewPariuData = {
   options: { text: string; odds: string }[];
 };
 
-export type InitialData = {
-  users: User[];
-  pariuri: Pariu[];
-  bets: Bet[];
+export type AppSettings = {
   appName: string;
   slogan: string;
   pactControlEnabled: boolean;
   aiVoiceEnabled: boolean;
+};
+
+export type InitialData = {
+  users: User[];
+  pariuri: Pariu[];
+  bets: Bet[];
+  settings: AppSettings;
 };
 
 
@@ -116,10 +121,8 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
   const [bets, setBets] = useState<Bet[]>(initialData.bets);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [appName, setAppNameState] = useState(initialData.appName);
-  const [slogan, setSloganState] = useState(initialData.slogan);
-  const [pactControlEnabled, setPactControlEnabled] = useState(initialData.pactControlEnabled);
-  const [aiVoiceEnabled, setAiVoiceEnabled] = useState(initialData.aiVoiceEnabled);
+  const [settings, setSettings] = useState<AppSettings>(initialData.settings);
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -127,6 +130,7 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
     setUsers(initialData.users);
     setPariuri(initialData.pariuri);
     setBets(initialData.bets);
+    setSettings(initialData.settings);
 
     const storedUserId = sessionStorage.getItem('currentUser');
     if (storedUserId) {
@@ -144,8 +148,20 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
     setIsLoading(false);
   }, [initialData]);
 
-  const setAppName = (name: string) => setAppNameState(name); // Placeholder for future persistence
-  const setSlogan = (slogan: string) => setSloganState(slogan); // Placeholder for future persistence
+  const updateSettings = async (newSettings: Partial<AppSettings>) => {
+    const result = await updateSettingsAction(newSettings);
+    if (result.success) {
+      toast({ title: 'Setări salvate', description: result.message });
+      router.refresh(); 
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  };
+
+  const setAppName = (name: string) => updateSettings({ appName: name });
+  const setSlogan = (slogan: string) => updateSettings({ slogan });
+  const togglePactControl = () => updateSettings({ pactControlEnabled: !settings.pactControlEnabled });
+  const toggleAiVoice = () => updateSettings({ aiVoiceEnabled: !settings.aiVoiceEnabled });
 
   const login = async (username: string, password?: string): Promise<boolean> => {
     const result = await loginAction(username, password);
@@ -169,7 +185,7 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
 
   const addFunds = async (amount: number) => {
     if (!currentUser) return;
-    const result = await addFundsAction(currentUser.id, amount, pactControlEnabled);
+    const result = await addFundsAction(currentUser.id, amount);
     if (result.success) {
       toast({ title: 'Succes!', description: result.message });
       if (result.achievement) {
@@ -268,12 +284,17 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
     }
   }
 
-  const togglePactControl = () => setPactControlEnabled(p => !p); // Placeholder
-  const toggleAiVoice = () => setAiVoiceEnabled(p => !p); // Placeholder
-
   const balance = currentUser ? currentUser.balance : 0;
   
-  const value = { users, currentUser, isLoading, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword };
+  const value = { 
+      users, currentUser, isLoading, login, logout, 
+      appName: settings.appName, setAppName, 
+      slogan: settings.slogan, setSlogan, 
+      balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds,
+      pactControlEnabled: settings.pactControlEnabled, togglePactControl, 
+      aiVoiceEnabled: settings.aiVoiceEnabled, toggleAiVoice, 
+      toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword 
+  };
 
   return (
     <AppContext.Provider value={value}>

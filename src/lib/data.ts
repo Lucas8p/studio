@@ -1,18 +1,20 @@
 import fs from 'fs/promises';
 import path from 'path';
-import type { User, Pariu, Bet, InitialData } from '@/contexts/app-context';
+import type { User, Pariu, Bet, InitialData, AppSettings } from '@/contexts/app-context';
 
 // Define file paths
 const dataDir = path.join(process.cwd(), 'src', 'data');
 const usersFilePath = path.join(dataDir, 'users.json');
 const pariuriFilePath = path.join(dataDir, 'pariuri.json');
 const betsFilePath = path.join(dataDir, 'bets.json');
+const settingsFilePath = path.join(dataDir, 'settings.json');
+
 
 const initialPariuri: Pariu[] = [
   {
     id: '1',
     title: 'Iar ne ține mai mult Gabi Sere la predică?',
-    description: "Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta serii tale stă în cumpănă.",
+    description: "Soarta serii tale... Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta serii tale stă în cumpănă.",
     options: [
       { text: 'Mai vreo ora sigur', odds: 4.0 },
       { text: 'Doar 10 minute', odds: 2.5 },
@@ -46,6 +48,13 @@ const initialPariuri: Pariu[] = [
   }
 ];
 
+const initialSettings: AppSettings = {
+    appName: 'InspaiărBet',
+    slogan: 'Pariază cu inspirație',
+    pactControlEnabled: true,
+    aiVoiceEnabled: true,
+};
+
 // Ensure data directory and files exist
 async function ensureFiles() {
     try {
@@ -53,6 +62,7 @@ async function ensureFiles() {
         await fs.access(usersFilePath).catch(() => fs.writeFile(usersFilePath, '[]', 'utf8'));
         await fs.access(betsFilePath).catch(() => fs.writeFile(betsFilePath, '[]', 'utf8'));
         await fs.access(pariuriFilePath).catch(() => fs.writeFile(pariuriFilePath, JSON.stringify(initialPariuri, null, 2), 'utf8'));
+        await fs.access(settingsFilePath).catch(() => fs.writeFile(settingsFilePath, JSON.stringify(initialSettings, null, 2), 'utf8'));
     } catch (error) {
         console.error("Failed to ensure data files exist:", error);
         // This is a critical error for the app's persistence layer.
@@ -88,21 +98,22 @@ export const savePariuri = (data: Pariu[]) => writeData(pariuriFilePath, data);
 export const getBets = () => readData<Bet[]>(betsFilePath, []);
 export const saveBets = (data: Bet[]) => writeData(betsFilePath, data);
 
+export const getSettings = () => readData<AppSettings>(settingsFilePath, initialSettings);
+export const saveSettings = (data: AppSettings) => writeData(settingsFilePath, data);
+
+
 export async function getInitialAppData(): Promise<InitialData> {
-    const [users, pariuri, bets] = await Promise.all([
+    const [users, pariuri, bets, settings] = await Promise.all([
         getUsers(),
         getPariuri(),
         getBets(),
+        getSettings(),
     ]);
 
-    // In a real app, these settings would also come from a config file or DB
     return {
         users,
         pariuri,
         bets,
-        appName: 'InspaiărBet',
-        slogan: 'Pariază cu inspirație',
-        pactControlEnabled: true,
-        aiVoiceEnabled: true,
+        settings
     };
 }
