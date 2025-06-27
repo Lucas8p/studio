@@ -1,35 +1,31 @@
-### STAGE 1: BUILD ###
-# Use a specific Node.js version for consistency
-FROM node:20-alpine AS builder
-
-# Set working directory
+# Stage 1: Install dependencies
+FROM node:20-slim AS deps
 WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install --production
 
-# Copy package files
-COPY package*.json ./
-
-# Install all dependencies (including dev) and build the app
-RUN npm install
+# Stage 2: Build the Next.js app
+FROM node:20-slim AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# This will generate the .next/standalone directory because of the `output: 'standalone'` in next.config.ts
 RUN npm run build
 
-### STAGE 2: PRODUCTION ###
-# Use the same Node.js version
-FROM node:20-alpine AS production
-
-# Set working directory
+# Stage 3: Production image - minimal and optimized
+FROM node:20-slim AS runner
 WORKDIR /app
+ENV NODE_ENV=production
+# The PORT environment variable is used by Next.js to start the server.
+# It defaults to 3000, so you may not need to set it.
+# ENV PORT=3000
 
-# Install ONLY production dependencies by copying package files and running install
-COPY package*.json ./
-RUN npm install --omit=dev --ignore-scripts
-
-# Copy built app from the builder stage
-COPY --from=builder /app/.next ./.next
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Expose port 3000
 EXPOSE 3000
 
-# Command to start the application in production mode
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
