@@ -2,5 +2,5 @@
   "appName": "InspaiărBet",
   "slogan": "Pariază cu inspirație",
   "pactControlEnabled": true,
-  "aiVoiceEnabled": true
+  "aiVoiceEnabled": false
 }

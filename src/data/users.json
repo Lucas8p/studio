@@ -1,16 +1,35 @@
 [
   {
     "id": "lucas",
-    "balance": 1000,
+    "balance": 1666,
     "isAdmin": true,
-    "hasMadePact": false,
-    "achievements": [],
+    "hasMadePact": true,
+    "achievements": [
+      "PACT_MAKER"
+    ],
     "balanceHistory": [
       {
         "date": 1751050063079,
         "balance": 1000
+      },
+      {
+        "date": 1751050349763,
+        "balance": 1666
       }
     ],
     "password": "admin123"
+  },
+  {
+    "id": "manu",
+    "balance": 1000,
+    "isAdmin": false,
+    "hasMadePact": false,
+    "achievements": [],
+    "balanceHistory": [
+      {
+        "date": 1751050190915,
+        "balance": 1000
+      }
+    ]
   }
 ]
