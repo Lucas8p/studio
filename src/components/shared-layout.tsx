@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, Sparkles } from 'lucide-react';
+import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, MessageSquareQuote } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -39,6 +39,14 @@ function NavMenu() {
           <Link href="/" onClick={handleLinkClick}>
             <Home />
             Pariuri
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/oracle')}>
+          <Link href="/oracle" onClick={handleLinkClick}>
+            <MessageSquareQuote />
+            Oracolul
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -151,3 +159,5 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
     </SidebarProvider>
   );
 }
+
+    

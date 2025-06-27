@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function PactAdvertisement() {
   const { currentUser, pactControlEnabled } = useApp();
@@ -150,18 +151,18 @@ export default function HomePage() {
                   const isWin = pariu.winningOptionIndex === bet.optionIndex;
                   const winnings = bet.amount * bet.odds;
                   return (
-                    <Card key={bet.id} className={isWin ? 'border-green-500/50' : 'border-destructive/50'}>
+                    <Card key={bet.id} className={cn('transition-all', isWin ? 'win-glow' : 'loss-glow')}>
                       <CardHeader>
                         <CardTitle className="font-headline text-lg leading-tight">{pariu.title}</CardTitle>
                         <CardDescription className="pt-2">Pariul tău: <span className="font-bold text-primary-foreground">{pariu.options[bet.optionIndex].text}</span></CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between text-sm">
                           <div className="text-muted-foreground">Suma pariată: <span className="font-bold text-primary-foreground">{bet.amount} T</span></div>
-                          <div className="text-muted-foreground">Rezultat: <span className={isWin ? 'text-green-600 font-bold' : 'text-destructive font-bold'}>{isWin ? `+${(winnings - bet.amount).toFixed(2)}` : `-${bet.amount.toFixed(2)}`} T</span></div>
+                          <div className="text-muted-foreground">Rezultat: <span className={cn('font-bold', isWin ? 'text-green-500' : 'text-destructive')}>{isWin ? `+${(winnings - bet.amount).toFixed(2)}` : `-${bet.amount.toFixed(2)}`} T</span></div>
                       </CardContent>
                       <CardFooter>
                         {isWin ? (
-                            <Badge className="w-full justify-center bg-green-500/20 text-green-700 hover:bg-green-500/30 border-green-500/50">
+                            <Badge className="w-full justify-center bg-green-500/20 text-green-700 hover:bg-green-500/30">
                                 <CheckCircle2 className="mr-2 h-4 w-4" />
                                 Câștigat
                             </Badge>
@@ -183,3 +184,5 @@ export default function HomePage() {
     </Tabs>
   );
 }
+
+    

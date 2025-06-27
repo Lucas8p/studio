@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/hooks/use-app';
 import type { Pariu } from '@/contexts/app-context';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from './ui/badge';
+import { BetDetailsDialog } from './bet-details-dialog';
 
 interface BettingCardProps {
   pariu: Pariu;
@@ -96,6 +97,14 @@ export function BettingCard({ pariu }: BettingCardProps) {
             </>
         )}
       </CardFooter>
+       <div className="px-6 pb-4">
+          <BetDetailsDialog pariu={pariu}>
+            <Button variant="outline" className="w-full">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Vezi Comentarii ({pariu.comments.length})
+            </Button>
+          </BetDetailsDialog>
+        </div>
     </Card>
   );
 }

@@ -7,6 +7,7 @@ import { CheckCircle2, XCircle, Hourglass } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 export default function HistoryPage() {
     const { bets, pariuri, currentUser } = useApp();
@@ -43,7 +44,7 @@ export default function HistoryPage() {
                                 const resultAmount = isWin ? (bet.amount * bet.odds) - bet.amount : isLoss ? -bet.amount : null;
 
                                 return (
-                                    <TableRow key={bet.id}>
+                                    <TableRow key={bet.id} className={cn(isWin && 'win-glow', isLoss && 'loss-glow')}>
                                         <TableCell className="font-medium max-w-xs truncate">{pariu.title}</TableCell>
                                         <TableCell>{option.text}</TableCell>
                                         <TableCell className="text-right">{bet.amount.toFixed(2)} T</TableCell>
@@ -72,3 +73,5 @@ export default function HistoryPage() {
         </Card>
     );
 }
+
+    

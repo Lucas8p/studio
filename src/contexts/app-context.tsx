@@ -4,16 +4,26 @@
 import React, { createContext, useState, ReactNode } from 'react';
 import { useToast } from "@/hooks/use-toast";
 
+export type AchievementID = 'NOVICE' | 'PACT_MAKER' | 'PROPHET' | 'JOB' | 'STREAK';
+
 export type User = {
   id: string; // username
   balance: number;
   isAdmin: boolean;
   hasMadePact: boolean;
+  achievements: AchievementID[];
+  balanceHistory: { date: number; balance: number }[];
 };
 
 export type PariuOption = {
   text: string;
   odds: number;
+};
+
+export type Comment = {
+  userId: string;
+  text: string;
+  date: number;
 };
 
 export type Pariu = {
@@ -23,6 +33,7 @@ export type Pariu = {
   options: PariuOption[];
   winningOptionIndex?: number;
   status: 'open' | 'closed';
+  comments: Comment[];
 };
 
 export type Bet = {
@@ -32,6 +43,7 @@ export type Bet = {
   amount: number;
   userId: string;
   odds: number;
+  date: number;
 };
 
 export type NewPariuData = {
@@ -61,6 +73,7 @@ type AppContextType = {
   toggleAdmin: (userId: string) => void;
   deleteUser: (userId: string) => void;
   deletePariu: (pariuId: string) => void;
+  addComment: (pariuId: string, text: string) => void;
 };
 
 const initialPariuri: Pariu[] = [
@@ -74,6 +87,7 @@ const initialPariuri: Pariu[] = [
       { text: 'Nu, scăpăm repede', odds: 1.5 }
     ],
     status: 'open',
+    comments: [],
   },
   {
     id: '2',
@@ -84,6 +98,7 @@ const initialPariuri: Pariu[] = [
         { text: 'Nu că s-au plictisit și ei de ea', odds: 2.1 },
     ],
     status: 'open',
+    comments: [],
   },
   {
     id: '3',
@@ -95,6 +110,7 @@ const initialPariuri: Pariu[] = [
     ],
     status: 'closed',
     winningOptionIndex: 0,
+    comments: [],
   }
 ];
 
@@ -110,11 +126,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [pactControlEnabled, setPactControlEnabled] = useState(false);
   const { toast } = useToast();
 
+  const updateUser = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+  }
+
+  const checkAndAwardAchievement = (user: User, achievementId: AchievementID): User => {
+    if (!user.achievements.includes(achievementId)) {
+        toast({
+            title: "Realizare Deblocată!",
+            description: `Ai primit realizarea: ${achievementId}.`
+        });
+        return { ...user, achievements: [...user.achievements, achievementId] };
+    }
+    return user;
+  };
+  
+  const updateBalanceHistory = (user: User, newBalance: number): User => {
+      const newHistoryEntry = { date: new Date().getTime(), balance: newBalance };
+      const updatedHistory = [...user.balanceHistory, newHistoryEntry];
+      return { ...user, balance: newBalance, balanceHistory: updatedHistory };
+  }
+
   const login = (username: string) => {
     let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
     if (!user) {
-      const isAdmin = users.length === 0; // First user is always the primary admin
-      user = { id: username, balance: 1000, isAdmin, hasMadePact: false };
+      const isAdmin = users.length === 0;
+      const initialBalance = 1000;
+      user = { 
+        id: username, 
+        balance: initialBalance, 
+        isAdmin, 
+        hasMadePact: false,
+        achievements: [],
+        balanceHistory: [{ date: new Date().getTime(), balance: initialBalance }]
+      };
       setUsers(prev => [...prev, user!]);
       toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
     } else {
@@ -130,8 +176,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addFunds = (amount: number) => {
     if (!currentUser) return;
     
+    let updatedUser = { ...currentUser };
+
     if (pactControlEnabled) {
-      if (currentUser.hasMadePact) {
+      if (updatedUser.hasMadePact) {
         toast({ variant: 'destructive', title: 'Pact deja încheiat', description: 'Ai făcut deja pactul o dată. Lăcomia este un păcat.' });
         return;
       }
@@ -139,20 +187,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toast({ variant: 'destructive', title: 'Ofertă respinsă', description: 'Lordul Întunericului acceptă doar ofranda standard de 666 de talanți.' });
         return;
       }
-      const updatedUser = { ...currentUser, balance: currentUser.balance + amount, hasMadePact: true };
-      setCurrentUser(updatedUser);
-      setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+      updatedUser = updateBalanceHistory(updatedUser, updatedUser.balance + amount);
+      updatedUser.hasMadePact = true;
+      updatedUser = checkAndAwardAchievement(updatedUser, 'PACT_MAKER');
       toast({ title: 'Pact încheiat!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont, cu costul sufletului tău`});
     } else {
       if (amount <= 0) {
         toast({ variant: 'destructive', title: 'Ofertă invalidă', description: 'Trebuie să oferi o sumă validă.' });
         return;
       }
-      const updatedUser = { ...currentUser, balance: currentUser.balance + amount };
-      setCurrentUser(updatedUser);
-      setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+      updatedUser = updateBalanceHistory(updatedUser, updatedUser.balance + amount);
       toast({ title: 'Fonduri adăugate!', description: `${amount.toFixed(2)} talanți au fost adăugați în cont.`});
     }
+    updateUser(updatedUser);
   };
 
   const addPariu = (data: NewPariuData) => {
@@ -162,6 +209,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       description: data.description,
       options: data.options.map(o => ({ text: o.text, odds: parseFloat(o.odds) || 1.0 })),
       status: 'open',
+      comments: [],
     };
     setPariuri(prev => [newPariu, ...prev]);
   };
@@ -187,10 +235,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast({ variant: 'destructive', title: 'Pariu Duplicat', description: 'Ai pariat deja pe acest eveniment.' });
       return;
     }
-
-    const updatedUser = { ...currentUser, balance: currentUser.balance - amount };
-    setCurrentUser(updatedUser);
-    setUsers(users.map(u => u.id === currentUser.id ? updatedUser : u));
+    
+    let updatedUser = updateBalanceHistory(currentUser, currentUser.balance - amount);
+    updatedUser = checkAndAwardAchievement(updatedUser, 'NOVICE');
+    updateUser(updatedUser);
 
     const odds = pariu.options[optionIndex].odds;
 
@@ -200,7 +248,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       optionIndex,
       amount,
       userId: currentUser.id,
-      odds
+      odds,
+      date: new Date().getTime()
     };
     setBets(prev => [...prev, newBet]);
     toast({ description: "Pariul a fost plasat, așteaptă și o să vezi cât de mare îți e credința :)" });
@@ -217,22 +266,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
     setPariuri(updatedPariuri);
 
-    const winningBets = bets.filter(b => b.pariuId === pariuId && b.optionIndex === winningOptionIndex);
+    const betsForThisPariu = bets.filter(b => b.pariuId === pariuId);
     let totalWinnings = 0;
     let updatedUsers = [...users];
 
-    winningBets.forEach(bet => {
-        const odds = pariuToResolve.options[bet.optionIndex].odds;
-        const winnings = bet.amount * odds;
-        totalWinnings += winnings;
+    betsForThisPariu.forEach(bet => {
+        const isWin = bet.optionIndex === winningOptionIndex;
+        const userIndex = updatedUsers.findIndex(u => u.id === bet.userId);
+        if (userIndex === -1) return;
 
-        const winnerIndex = updatedUsers.findIndex(u => u.id === bet.userId);
-        if (winnerIndex !== -1) {
-            updatedUsers[winnerIndex] = {
-                ...updatedUsers[winnerIndex],
-                balance: updatedUsers[winnerIndex].balance + winnings
-            };
+        let user = updatedUsers[userIndex];
+
+        if (isWin) {
+            const odds = pariuToResolve.options[bet.optionIndex].odds;
+            const winnings = bet.amount * odds;
+            totalWinnings += winnings;
+            user = updateBalanceHistory(user, user.balance + winnings);
+
+            if (odds > 5) {
+                user = checkAndAwardAchievement(user, 'PROPHET');
+            }
         }
+        
+        // Check for streaks
+        const userClosedBets = bets
+            .filter(b => b.userId === user.id)
+            .map(b => {
+                const pariu = updatedPariuri.find(p => p.id === b.pariuId);
+                return { bet: b, pariu };
+            })
+            .filter(item => item.pariu && item.pariu.status === 'closed')
+            .sort((a, b) => b.bet.date - a.bet.date);
+
+        if (userClosedBets.length >= 3) {
+            const last3 = userClosedBets.slice(0, 3);
+            if (last3.every(item => item.pariu?.winningOptionIndex === item.bet.optionIndex)) {
+                user = checkAndAwardAchievement(user, 'STREAK');
+            }
+        }
+
+        if (userClosedBets.length >= 5) {
+             const last5 = userClosedBets.slice(0, 5);
+             if (last5.every(item => item.pariu?.winningOptionIndex !== item.bet.optionIndex)) {
+                user = checkAndAwardAchievement(user, 'JOB');
+            }
+        }
+
+        updatedUsers[userIndex] = user;
     });
     
     setUsers(updatedUsers);
@@ -244,7 +324,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    if (winningBets.length > 0) {
+    if (totalWinnings > 0) {
         toast({
             title: 'Diavolul își plătește datoriile!',
             description: `S-au plătit ${totalWinnings.toFixed(2)} talanți câștigătorilor.`
@@ -279,6 +359,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast({ title: 'Pariu Șters', description: `Pariul "${pariuToDelete.title}" a fost șters cu succes.` });
   };
   
+  const addComment = (pariuId: string, text: string) => {
+    if (!currentUser) return;
+
+    const newComment: Comment = {
+      userId: currentUser.id,
+      text,
+      date: new Date().getTime(),
+    };
+
+    setPariuri(pariuri.map(p => {
+      if (p.id === pariuId) {
+        return { ...p, comments: [...p.comments, newComment] };
+      }
+      return p;
+    }));
+  }
+
   const balance = currentUser?.balance ?? 0;
 
   const togglePactControl = () => {
@@ -317,7 +414,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser, deletePariu };
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, toggleAdmin, deleteUser, deletePariu, addComment };
 
   return (
     <AppContext.Provider value={value}>
@@ -325,3 +422,5 @@ export function AppProvider({ children }: { children: ReactNode }) {
     </AppContext.Provider>
   );
 }
+
+    
