@@ -31,5 +31,18 @@
         "balance": 1000
       }
     ]
+  },
+  {
+    "id": "luca",
+    "balance": 1000,
+    "isAdmin": false,
+    "hasMadePact": false,
+    "achievements": [],
+    "balanceHistory": [
+      {
+        "date": 1751054899244,
+        "balance": 1000
+      }
+    ]
   }
 ]

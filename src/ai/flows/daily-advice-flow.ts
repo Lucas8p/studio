@@ -22,7 +22,7 @@ const DailyAdviceOutputSchema = z.object({
 });
 export type DailyAdviceOutput = z.infer<typeof DailyAdviceOutputSchema>;
 
-export async function getDailyAdvice(input: DailyAdviceInput = {}): Promise<DailyAdviceOutput> {
+export async function getDailyAdvice(input: DailyAdviceInput): Promise<DailyAdviceOutput> {
     return dailyAdviceFlow(input);
 }
 
@@ -75,7 +75,7 @@ const dailyAdviceFlow = ai.defineFlow(
         const textResponse = await textPrompt();
         const textOutput = textResponse.text || `Soarta este indecisă astăzi. Încearcă mai târziu.`;
 
-        if (!input.generateAudio) {
+        if (input.generateAudio === false) {
             return { text: textOutput };
         }
 

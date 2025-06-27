@@ -52,7 +52,7 @@ const initialSettings: AppSettings = {
     appName: 'InspaiărBet',
     slogan: 'Pariază cu inspirație',
     pactControlEnabled: true,
-    aiVoiceEnabled: true,
+    aiVoiceEnabled: false,
 };
 
 // Ensure data directory and files exist
