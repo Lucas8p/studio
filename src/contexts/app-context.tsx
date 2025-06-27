@@ -13,6 +13,7 @@ export type User = {
   hasMadePact: boolean;
   achievements: AchievementID[];
   balanceHistory: { date: number; balance: number }[];
+  password?: string;
 };
 
 export type PariuOption = {
@@ -76,6 +77,7 @@ type AppContextType = {
   deleteUser: (userId: string) => void;
   deletePariu: (pariuId: string) => void;
   addComment: (pariuId: string, text: string) => void;
+  updateAdminPassword: (userId: string, newPassword: string) => void;
 };
 
 const initialPariuri: Pariu[] = [
@@ -155,35 +157,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let user = users.find(u => u.id.toLowerCase() === username.toLowerCase());
     const isFirstUser = users.length === 0;
 
-    const isAdmin = user?.isAdmin || (isFirstUser && username.trim() !== '');
+    const isPotentiallyAdmin = user?.isAdmin || (isFirstUser && username.trim() !== '');
 
-    if (isAdmin) {
+    if (isPotentiallyAdmin) {
       const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
-      if (password !== adminPassword) {
-        toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
-        return false;
+      
+      if (!user) { // First user ever, they become primary admin
+         user = { 
+            id: username, 
+            balance: 1000, 
+            isAdmin: true, 
+            hasMadePact: false,
+            achievements: [],
+            balanceHistory: [{ date: new Date().getTime(), balance: 1000 }],
+            password: adminPassword
+          };
+          if (password !== adminPassword) {
+            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
+            return false;
+          }
+          setUsers(prev => [...prev, user!]);
+          toast({ title: `Bine ai venit, Administrator Principal ${username}!`, description: "Contul tău a fost creat." });
+      } else { // Existing admin user
+        const correctPassword = user.password || (user.id === users[0].id ? adminPassword : undefined);
+        if (password !== correctPassword) {
+            toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Parola de administrator este incorectă.' });
+            return false;
+        }
+        toast({ title: `Bine ai revenit, ${username}!` });
       }
-    }
-
-    if (!user) {
-      const initialBalance = 1000;
-      user = { 
-        id: username, 
-        balance: initialBalance, 
-        isAdmin, 
-        hasMadePact: false,
-        achievements: [],
-        balanceHistory: [{ date: new Date().getTime(), balance: initialBalance }]
-      };
-      setUsers(prev => [...prev, user!]);
-      toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
-    } else {
-      toast({ title: `Bine ai revenit, ${username}!` });
+    } else { // Regular user
+      if (!user) {
+        const initialBalance = 1000;
+        user = { 
+          id: username, 
+          balance: initialBalance, 
+          isAdmin: false, 
+          hasMadePact: false,
+          achievements: [],
+          balanceHistory: [{ date: new Date().getTime(), balance: initialBalance }]
+        };
+        setUsers(prev => [...prev, user!]);
+        toast({ title: `Bine ai venit, ${username}!`, description: "Contul tău a fost creat." });
+      } else {
+        toast({ title: `Bine ai revenit, ${username}!` });
+      }
     }
     
     setCurrentUser(user);
     return true;
   };
+
 
   const logout = () => {
     setCurrentUser(null);
@@ -439,9 +463,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUsers(prev => prev.filter(u => u.id !== userId));
     toast({ title: 'Utilizator Șters', description: `Utilizatorul ${userId} și pariurile sale au fost șterse.` });
   };
+  
+  const updateAdminPassword = (userId: string, newPassword: string) => {
+    if (!currentUser || currentUser.id !== users[0]?.id) {
+      toast({ variant: 'destructive', title: 'Acces Interzis', description: 'Doar administratorul principal poate schimba parole.' });
+      return;
+    }
+    
+    setUsers(prevUsers => prevUsers.map(u => {
+      if (u.id === userId && u.isAdmin) {
+        return { ...u, password: newPassword };
+      }
+      return u;
+    }));
+    
+    if (userId === currentUser.id) {
+        setCurrentUser(prev => prev ? { ...prev, password: newPassword } : null);
+    }
+
+    toast({ title: 'Parolă Actualizată!', description: `Parola pentru ${userId} a fost schimbată cu succes.` });
+  }
 
 
-  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment };
+  const value = { users, currentUser, login, logout, appName, setAppName, slogan, setSlogan, balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds, pactControlEnabled, togglePactControl, aiVoiceEnabled, toggleAiVoice, toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword };
 
   return (
     <AppContext.Provider value={value}>

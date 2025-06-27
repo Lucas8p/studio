@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles, Wand2, MessageSquareQuote } from 'lucide-react';
+import { PlusCircle, Trash2, Settings, Skull, ShieldCheck, ShieldX, UserX, Sparkles, Wand2, MessageSquareQuote, KeyRound } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -59,7 +59,7 @@ const formSchema = z.object({
 });
 
 export default function AdminPage() {
-  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu, aiVoiceEnabled, toggleAiVoice } = useApp();
+  const { pariuri, addPariu, resolvePariu, appName, setAppName, slogan, setSlogan, currentUser, users, toggleAdmin, deleteUser, pactControlEnabled, togglePactControl, deletePariu, aiVoiceEnabled, toggleAiVoice, updateAdminPassword } = useApp();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
@@ -70,6 +70,10 @@ export default function AdminPage() {
   const [newSlogan, setNewSlogan] = useState(slogan);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [pariuToDelete, setPariuToDelete] = useState<Pariu | null>(null);
+  const [mainAdminPassword, setMainAdminPassword] = useState('');
+  const [otherAdminId, setOtherAdminId] = useState('');
+  const [otherAdminPassword, setOtherAdminPassword] = useState('');
+
 
   const isPrimaryAdmin = currentUser?.id === users[0]?.id;
 
@@ -218,7 +222,29 @@ export default function AdminPage() {
     }
   }
 
+  const handleChangeMainAdminPassword = () => {
+    if (!mainAdminPassword.trim() || !currentUser) {
+        toast({ variant: 'destructive', title: 'Parolă Invalidă', description: 'Introduceți o parolă validă.' });
+        return;
+    }
+    updateAdminPassword(currentUser.id, mainAdminPassword);
+    setMainAdminPassword('');
+  }
+
+  const handleChangeOtherAdminPassword = () => {
+    if (!otherAdminId || !otherAdminPassword.trim()) {
+        toast({ variant: 'destructive', title: 'Date Incomplete', description: 'Selectați un administrator și introduceți o parolă validă.' });
+        return;
+    }
+    updateAdminPassword(otherAdminId, otherAdminPassword);
+    setOtherAdminId('');
+    setOtherAdminPassword('');
+  }
+
+
   const openPariuri = pariuri.filter(p => p.status === 'open');
+  const otherAdmins = users.filter(u => u.isAdmin && u.id !== currentUser?.id);
+
 
   if (!currentUser?.isAdmin) {
     return (
@@ -434,6 +460,64 @@ export default function AdminPage() {
                         </TableBody>
                     </Table>
                 </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                  <CardTitle className="font-headline text-2xl">Management Parole</CardTitle>
+                  <CardDescription>
+                      Schimbați parolele pentru conturile de administrator.
+                      <span className="font-bold text-destructive/80 block mt-1">Notă: Acesta este un sistem simplificat pentru prototip. Nu utilizați parole reale.</span>
+                  </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                  <div>
+                      <Label htmlFor="mainAdminPassword">Parola Administratorului Principal</Label>
+                      <div className="flex gap-2 mt-1">
+                          <Input
+                              id="mainAdminPassword"
+                              type="password"
+                              placeholder="Parolă nouă"
+                              value={mainAdminPassword}
+                              onChange={(e) => setMainAdminPassword(e.target.value)}
+                          />
+                          <Button onClick={handleChangeMainAdminPassword} disabled={!mainAdminPassword.trim()}>
+                              <KeyRound className="mr-2 h-4 w-4" /> Salvează
+                          </Button>
+                      </div>
+                  </div>
+
+                  {otherAdmins.length > 0 && (
+                      <>
+                          <Separator />
+                          <div>
+                              <Label>Parolele Celorlalți Administratori</Label>
+                              <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                                  <Select onValueChange={setOtherAdminId} value={otherAdminId}>
+                                      <SelectTrigger>
+                                          <SelectValue placeholder="Selectează un admin" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                          {otherAdmins.map(admin => (
+                                              <SelectItem key={admin.id} value={admin.id}>{admin.id}</SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                  </Select>
+                                  <Input
+                                      type="password"
+                                      placeholder="Parolă nouă pentru adminul selectat"
+                                      value={otherAdminPassword}
+                                      onChange={(e) => setOtherAdminPassword(e.target.value)}
+                                      disabled={!otherAdminId}
+                                  />
+                              </div>
+                               <Button onClick={handleChangeOtherAdminPassword} disabled={!otherAdminId || !otherAdminPassword.trim()} className="mt-2 w-full sm:w-auto">
+                                    <KeyRound className="mr-2 h-4 w-4" /> Schimbă Parola
+                                </Button>
+                          </div>
+                      </>
+                  )}
+              </CardContent>
             </Card>
 
            <Card>
