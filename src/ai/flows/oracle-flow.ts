@@ -16,10 +16,10 @@ const OracleInputSchema = z.object({
 });
 export type OracleInput = z.infer<typeof OracleInputSchema>;
 
-// Define output schema
 const OracleOutputSchema = z.object({
   text: z.string().describe("The cryptic text response from the oracle."),
   audio: z.string().describe("A data URI of the spoken response in WAV format.").optional(),
+  error: z.string().describe("An error message if audio generation failed.").optional(),
 });
 export type OracleOutput = z.infer<typeof OracleOutputSchema>;
 
@@ -78,45 +78,50 @@ const oracleFlow = ai.defineFlow(
         // 1. Generate the text response
         const textResponse = await textPrompt(question);
         const textOutput = textResponse.text || `Stelele sunt neclare în privința asta... Încearcă din nou când soarta va fi mai limpede.`;
-
+        
         // 2. Conditionally generate audio if the flag is true
-        if (input.generateAudio) {
-            try {
-                const { media } = await ai.generate({
-                    model: 'googleai/gemini-2.5-flash-preview-tts',
-                    config: {
-                        responseModalities: ['AUDIO'],
-                        speechConfig: {
-                            voiceConfig: {
-                                // A deeper, more mysterious voice for the oracle
-                                prebuiltVoiceConfig: { voiceName: 'Umbriel' },
-                            },
-                        },
-                    },
-                    prompt: textOutput,
-                });
-
-                if (media) {
-                    const audioBuffer = Buffer.from(
-                        media.url.substring(media.url.indexOf(',') + 1),
-                        'base64'
-                    );
-                    
-                    const wavBase64 = await toWav(audioBuffer);
-                    const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
-
-                    return {
-                        text: textOutput,
-                        audio: audioDataUri,
-                    };
-                }
-            } catch (error) {
-                console.error("TTS generation failed for oracle, returning text only.", error);
-                // Fall through to return text only if TTS fails
-            }
+        if (!input.generateAudio) {
+            return { text: textOutput };
         }
 
-        // 3. Return text-only response by default or if audio generation fails
-        return { text: textOutput };
+        try {
+            const { media } = await ai.generate({
+                model: 'googleai/gemini-2.5-flash-preview-tts',
+                config: {
+                    responseModalities: ['AUDIO'],
+                    speechConfig: {
+                        voiceConfig: {
+                            // A deeper, more mysterious voice for the oracle
+                            prebuiltVoiceConfig: { voiceName: 'Umbriel' },
+                        },
+                    },
+                },
+                prompt: textOutput,
+            });
+
+            if (media) {
+                const audioBuffer = Buffer.from(
+                    media.url.substring(media.url.indexOf(',') + 1),
+                    'base64'
+                );
+                
+                const wavBase64 = await toWav(audioBuffer);
+                const audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+
+                return {
+                    text: textOutput,
+                    audio: audioDataUri,
+                };
+            }
+            // This case might occur if TTS returns no data but doesn't throw.
+             return { text: textOutput, error: "Generarea audio a returnat un răspuns gol." };
+        } catch (error: any) {
+            console.error("TTS generation failed for oracle, returning text only.", error);
+            // Return the error message to the client for debugging.
+            return { 
+                text: textOutput, 
+                error: `Generarea audio a eșuat. Asigurați-vă că ați configurat corect cheia API Google. Detalii: ${error.message || 'Eroare necunoscută.'}`
+            };
+        }
     }
 );
