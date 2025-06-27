@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/hooks/use-app';
 import { BettingCard } from '@/components/betting-card';
@@ -9,8 +10,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles } from 'lucide-react';
+import { CheckCircle2, XCircle, Hourglass, Skull, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getDailyAdvice } from '@/ai/flows/daily-advice-flow';
+import { Skeleton } from '@/components/ui/skeleton';
+
+
+function DailyAdviceCard() {
+  const [advice, setAdvice] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasAsked, setHasAsked] = useState(false);
+
+  const handleGetAdvice = async () => {
+    setIsLoading(true);
+    setHasAsked(true);
+    try {
+      const result = await getDailyAdvice();
+      setAdvice(result);
+    } catch (error) {
+      console.error("Error getting daily advice:", error);
+      setAdvice("Spiritele sunt tulburi... O eroare neașteptată a întrerupt viziunea.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mb-6 border-accent/30 bg-accent/10 text-accent-foreground">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 font-headline text-lg">
+          <Wand2 className="h-5 w-5" />
+          Sfatul Zilei
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-center">
+        {!hasAsked ? (
+           <Button variant="outline" onClick={handleGetAdvice} className="bg-background/50">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Primește îndrumare divină
+            </Button>
+        ) : isLoading ? (
+          <Skeleton className="h-5 w-3/4 mx-auto" />
+        ) : (
+          <p className="italic">&ldquo;{advice}&rdquo;</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function PactAdvertisement() {
   const { currentUser, pactControlEnabled } = useApp();
@@ -88,6 +135,7 @@ export default function HomePage() {
       <TabsContent value="available">
         <ScrollArea className="h-[calc(100vh-12rem)]">
           <div className="p-1 pt-4">
+            <DailyAdviceCard />
             <PactAdvertisement />
             <FaithAdvertisement />
             {openPariuri.length === 0 ? (
