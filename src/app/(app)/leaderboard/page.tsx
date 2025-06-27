@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
                                             <TooltipProvider delayDuration={0}>
                                                 <Tooltip>
                                                     <TooltipTrigger>
-                                                        <Crown className="h-4 w-4 text-amber-500"/>
+                                                        <Crown className="h-4 w-4 text-accent"/>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
                                                         <p>Administrator</p>

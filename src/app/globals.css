@@ -11,19 +11,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 83% 4%;
     --popover-foreground: 210 40% 98%;
-    --primary: 263 70% 58%; /* mov */
+    --primary: 263 80% 65%; /* vibrant purple */
     --primary-foreground: 210 40% 98%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 263 70% 58%; /* mov */
-    --accent-foreground: 210 40% 98%;
+    --accent: 45 90% 55%; /* gold/amber */
+    --accent-foreground: 222 83% 4%; /* dark for contrast on gold */
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 25%;
     --input: 217 33% 25%;
-    --ring: 263 70% 58%; /* mov */
+    --ring: 263 80% 65%; /* vibrant purple */
     --chart-1: 280 80% 65%;
     --chart-2: 180 80% 50%;
     --chart-3: 30 80% 55%;
@@ -39,19 +39,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 83% 4%;
     --popover-foreground: 210 40% 98%;
-    --primary: 263 70% 58%; /* mov */
+    --primary: 263 80% 65%; /* vibrant purple */
     --primary-foreground: 210 40% 98%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 263 70% 58%; /* mov */
-    --accent-foreground: 210 40% 98%;
+    --accent: 45 90% 55%; /* gold/amber */
+    --accent-foreground: 222 83% 4%; /* dark for contrast on gold */
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 25%;
     --input: 217 33% 25%;
-    --ring: 263 70% 58%; /* mov */
+    --ring: 263 80% 65%; /* vibrant purple */
     --chart-1: 280 80% 65%;
     --chart-2: 180 80% 50%;
     --chart-3: 30 80% 55%;

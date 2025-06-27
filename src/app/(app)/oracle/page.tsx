@@ -63,7 +63,7 @@ export default function OraclePage() {
                     <Skeleton className="h-4 w-4/6 mx-auto" />
                 </div>
               ) : (
-                <p className="text-lg italic text-accent-foreground">&ldquo;{answer}&rdquo;</p>
+                <p className="text-lg italic text-accent">&ldquo;{answer}&rdquo;</p>
               )}
             </div>
           )}
