@@ -564,6 +564,9 @@ export default function AdminPage() {
                       <p className="text-sm text-muted-foreground">
                           Activează/dezactivează generarea audio pentru răspunsurile AI.
                       </p>
+                       <p className="text-xs text-amber-500">
+                          Atenție: Această funcție utilizează API-ul Google AI (TTS) și poate fi supusă limitelor planului gratuit sau poate genera costuri.
+                      </p>
                   </div>
                   <Switch
                       checked={aiVoiceEnabled}
