@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Node
+node_modules
+npm-debug.log
+
+# Next.js
+.next
+
+# Local environment variables
+.env.local
+
+# VSCode
+.vscode
