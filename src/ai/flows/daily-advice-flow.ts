@@ -12,7 +12,7 @@ import { z } from 'genkit';
 import wav from 'wav';
 
 const DailyAdviceInputSchema = z.object({
-  generateAudio: z.boolean().optional().default(true),
+  generateAudio: z.boolean().optional(),
 });
 export type DailyAdviceInput = z.infer<typeof DailyAdviceInputSchema>;
 
@@ -70,12 +70,12 @@ const dailyAdviceFlow = ai.defineFlow(
         inputSchema: DailyAdviceInputSchema,
         outputSchema: DailyAdviceOutputSchema,
     },
-    async (input) => {
+    async ({ generateAudio = true }) => {
         // 1. Generate text
         const textResponse = await textPrompt();
         const textOutput = textResponse.text || `Soarta este indecisă astăzi. Încearcă mai târziu.`;
 
-        if (input.generateAudio === false) {
+        if (!generateAudio) {
             return { text: textOutput };
         }
 

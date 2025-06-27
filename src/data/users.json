@@ -44,5 +44,18 @@
         "balance": 1000
       }
     ]
+  },
+  {
+    "id": "luckyme",
+    "balance": 1000,
+    "isAdmin": false,
+    "hasMadePact": false,
+    "achievements": [],
+    "balanceHistory": [
+      {
+        "date": 1751055062494,
+        "balance": 1000
+      }
+    ]
   }
 ]

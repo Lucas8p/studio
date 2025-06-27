@@ -12,7 +12,7 @@ import wav from 'wav';
 
 const OracleInputSchema = z.object({
   question: z.string().describe("The user's question for the oracle."),
-  generateAudio: z.boolean().optional().default(true),
+  generateAudio: z.boolean().optional(),
 });
 export type OracleInput = z.infer<typeof OracleInputSchema>;
 
@@ -72,12 +72,12 @@ const oracleFlow = ai.defineFlow(
         inputSchema: OracleInputSchema,
         outputSchema: OracleOutputSchema,
     },
-    async (input) => {
+    async ({ question, generateAudio = true }) => {
         // 1. Generate the text response
-        const textResponse = await textPrompt(input.question);
+        const textResponse = await textPrompt(question);
         const textOutput = textResponse.text || `Stelele sunt neclare în privința asta... Încearcă din nou când soarta va fi mai limpede.`;
 
-        if (!input.generateAudio) {
+        if (!generateAudio) {
             return { text: textOutput };
         }
 
