@@ -1,17 +1,21 @@
-# Dependencies
+# Dependency directories
 node_modules
 
-# Next.js build folder
+# Next.js build output
 .next
 
-# Local environment files
+# VS Code directory
+.vscode
+
+# Git directory
+.git
+
+# Local environment variables
+.env
 .env.local
+.env.production
+.env.development
 
-# Docker files
-Dockerfile
-.dockerignore
-
-# Misc
+# Log files
 npm-debug.log*
-yarn-debug.log*
 yarn-error.log*
