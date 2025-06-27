@@ -36,7 +36,7 @@ function DailyAdviceCard() {
   };
 
   return (
-    <Card className="mb-6 border-accent/30 bg-accent/10 text-accent-foreground">
+    <Card className="border-accent/30 bg-accent/10 text-accent-foreground">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-headline text-lg">
           <Wand2 className="h-5 w-5" />
@@ -67,7 +67,7 @@ function PactAdvertisement() {
   }
 
   return (
-    <Card className="mb-6 bg-destructive/5 border-destructive/20 shadow-lg shadow-destructive/10">
+    <Card className="bg-destructive/5 border-destructive/20 shadow-lg shadow-destructive/10">
       <CardHeader className="flex-row items-center gap-4 pb-4">
         <Skull className="h-12 w-12 flex-shrink-0 text-destructive animate-pulse" />
         <div>
@@ -89,7 +89,7 @@ function PactAdvertisement() {
 
 function FaithAdvertisement() {
   return (
-    <Card className="mb-6 border-primary/30 bg-primary/10">
+    <Card className="border-primary/30 bg-primary/10">
       <CardHeader className="flex-row items-center gap-4 pb-4">
         <Sparkles className="h-8 w-8 flex-shrink-0 text-primary animate-pulse" />
         <div>
@@ -123,6 +123,31 @@ export default function HomePage() {
     })
     .filter(Boolean)
     .sort((a, b) => parseInt(b.bet.id) - parseInt(a.bet.id));
+
+  const availableItems: React.ReactNode[] = [];
+  const betCards = openPariuri.map(pariu => <BettingCard key={pariu.id} pariu={pariu} />);
+  
+  availableItems.push(<DailyAdviceCard key="daily-advice" />);
+
+  if (betCards.length > 0) {
+    betCards.splice(1, 0, <PactAdvertisement key="pact-ad" />);
+
+    if(betCards.length > 4) {
+      betCards.splice(4, 0, <FaithAdvertisement key="faith-ad" />);
+    } else {
+      betCards.push(<FaithAdvertisement key="faith-ad" />);
+    }
+
+    availableItems.push(...betCards);
+  } else {
+    availableItems.push(<PactAdvertisement key="pact-ad" />);
+    availableItems.push(<FaithAdvertisement key="faith-ad" />);
+    availableItems.push(
+      <div key="empty-msg" className="flex items-center justify-center h-64 text-center text-muted-foreground md:col-span-1 xl:col-span-2 2xl:col-span-3">
+        Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
+      </div>
+    );
+  }
     
   return (
     <Tabs defaultValue="available" className="w-full">
@@ -135,20 +160,9 @@ export default function HomePage() {
       <TabsContent value="available">
         <ScrollArea className="h-[calc(100vh-12rem)]">
           <div className="p-1 pt-4">
-            <DailyAdviceCard />
-            <PactAdvertisement />
-            <FaithAdvertisement />
-            {openPariuri.length === 0 ? (
-              <div className="flex items-center justify-center h-64 text-center text-muted-foreground">
-                Cartea pariurilor este momentan goală. Spiritul va oferi noi oportunități în curând. Reveniți mai târziu!
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
-                {openPariuri.map(pariu => (
-                  <BettingCard key={pariu.id} pariu={pariu} />
-                ))}
-              </div>
-            )}
+             <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
+              {availableItems}
+            </div>
           </div>
         </ScrollArea>
       </TabsContent>
@@ -232,5 +246,3 @@ export default function HomePage() {
     </Tabs>
   );
 }
-
-    
