@@ -1,93 +1,16 @@
 [
   {
     "id": "lucas",
-    "balance": 1666,
+    "balance": 1000,
     "isAdmin": true,
     "hasMadePact": false,
-    "achievements": [
-      "PACT_MAKER"
-    ],
+    "achievements": [],
     "balanceHistory": [
       {
-        "date": 1751050063079,
+        "date": 1751107958698,
         "balance": 1000
-      },
-      {
-        "date": 1751050349763,
-        "balance": 1666
       }
     ],
     "password": "admin1234"
-  },
-  {
-    "id": "manu",
-    "balance": 1666,
-    "isAdmin": true,
-    "hasMadePact": false,
-    "achievements": [
-      "PACT_MAKER"
-    ],
-    "balanceHistory": [
-      {
-        "date": 1751050190915,
-        "balance": 1000
-      },
-      {
-        "date": 1751106058996,
-        "balance": 1000
-      },
-      {
-        "date": 1751106233292,
-        "balance": 1666
-      }
-    ],
-    "password": "12345"
-  },
-  {
-    "id": "luca",
-    "balance": 1008,
-    "isAdmin": false,
-    "hasMadePact": false,
-    "achievements": [],
-    "balanceHistory": [
-      {
-        "date": 1751054899244,
-        "balance": 1000
-      },
-      {
-        "date": 1751106064810,
-        "balance": 1008
-      }
-    ]
-  },
-  {
-    "id": "luckyme",
-    "balance": 1000,
-    "isAdmin": false,
-    "hasMadePact": false,
-    "achievements": [],
-    "balanceHistory": [
-      {
-        "date": 1751055062494,
-        "balance": 1000
-      }
-    ]
-  },
-  {
-    "id": "admin1234",
-    "balance": 3000,
-    "isAdmin": false,
-    "hasMadePact": false,
-    "achievements": [],
-    "balanceHistory": [
-      {
-        "date": 1751106173994,
-        "balance": 1000
-      },
-      {
-        "date": 1751106630410,
-        "balance": 3000
-      }
-    ]
   }
 ]

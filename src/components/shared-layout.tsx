@@ -1,11 +1,11 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, Settings, Wallet, History, Trophy, MessageSquareQuote, ClipboardList } from 'lucide-react';
+import { Home, LogOut, Settings, Wallet, History, Trophy, MessageSquareQuote, ClipboardList, RefreshCw } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -23,6 +23,8 @@ import { useApp } from '@/hooks/use-app';
 import { Logo } from '@/components/icons';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function NavMenu() {
   const { currentUser, users } = useApp();
@@ -110,6 +112,9 @@ function NavMenu() {
 export function SharedLayout({ children, title, showBalance = false }: { children: ReactNode, title: string, showBalance?: boolean }) {
   const { balance, currentUser, logout, appName, slogan, isLoading } = useApp();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -139,6 +144,20 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
     logout();
     router.push('/login');
   }
+  
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh();
+
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast({
+        title: "Date Actualizate",
+        description: "Cele mai recente informații au fost încărcate.",
+      });
+    }, 1200);
+  };
+
 
   return (
     <SidebarProvider>
@@ -165,16 +184,22 @@ export function SharedLayout({ children, title, showBalance = false }: { childre
             <SidebarTrigger className="flex-shrink-0 md:hidden" />
             <h1 className="truncate text-lg font-semibold font-headline sm:text-xl">{title}</h1>
           </div>
-          {showBalance && (
-            <div className="flex-shrink-0 font-semibold text-right text-sm sm:text-base md:text-lg">
-              <span className="hidden sm:inline">Balanță: </span>
-              <span className="font-bold font-headline text-accent flex items-center gap-2">
-                {balance.toFixed(2)}
-                <span className="hidden sm:inline"> talanți</span>
-                <span className="sm:hidden"> T</span>
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {showBalance && (
+              <div className="flex-shrink-0 font-semibold text-right text-sm sm:text-base">
+                <span className="hidden sm:inline">Balanță: </span>
+                <span className="font-bold font-headline text-accent flex items-center gap-2">
+                  {balance.toFixed(2)}
+                  <span className="hidden sm:inline"> talanți</span>
+                  <span className="sm:hidden"> T</span>
+                </span>
+              </div>
+            )}
+            <Button onClick={handleRefresh} variant="ghost" size="icon" disabled={isRefreshing} className="flex-shrink-0">
+                <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
+                <span className="sr-only">Actualizează datele</span>
+            </Button>
+          </div>
         </header>
         <main className="flex-1 p-4 md:p-6">
             {children}
