@@ -1,3 +1,4 @@
+
 import fs from 'fs/promises';
 import path from 'path';
 import type { User, Pariu, Bet, InitialData, AppSettings } from '@/contexts/app-context';
@@ -10,11 +11,11 @@ const betsFilePath = path.join(dataDir, 'bets.json');
 const settingsFilePath = path.join(dataDir, 'settings.json');
 
 
-const initialPariuri: Pariu[] = [
+export const initialPariuri: Pariu[] = [
   {
     id: '1',
     title: 'Iar ne ține mai mult Gabi Sere la predică?',
-    description: "Soarta serii tale... Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta serii tale stă în cumpănă.",
+    description: "Durata slujbelor devine un joc de noroc. Își va testa Gabi Sere răbdarea turmei sau va arăta o milă neașteptată? Soarta serii tale stă în cumpănă.",
     options: [
       { text: 'Mai vreo ora sigur', odds: 4.0 },
       { text: 'Doar 10 minute', odds: 2.5 },
@@ -52,7 +53,7 @@ const initialSettings: AppSettings = {
     appName: 'InspaiărBet',
     slogan: 'Pariază cu inspirație',
     pactControlEnabled: true,
-    aiVoiceEnabled: false,
+    aiVoiceEnabled: true,
 };
 
 // Ensure data directory and files exist

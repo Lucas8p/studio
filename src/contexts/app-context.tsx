@@ -16,6 +16,9 @@ import {
   deleteUserAction,
   updateAdminPasswordAction,
   updateSettingsAction,
+  updateUserBalanceAction,
+  resetPactAction,
+  fullResetAction,
 } from '@/app/actions';
 
 export type AchievementID = 'NOVICE' | 'PACT_MAKER' | 'PROPHET' | 'JOB' | 'STREAK';
@@ -108,6 +111,9 @@ type AppContextType = {
   deletePariu: (pariuId: string) => void;
   addComment: (pariuId: string, text: string) => void;
   updateAdminPassword: (userId: string, newPassword: string) => void;
+  updateUserBalance: (userId: string, newBalance: number) => void;
+  resetPact: (userId: string) => void;
+  fullReset: () => void;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -283,6 +289,39 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
       toast({ variant: 'destructive', title: 'Eroare', description: result.message });
     }
   }
+  
+  const updateUserBalance = async (userId: string, newBalance: number) => {
+    if (!currentUser) return;
+    const result = await updateUserBalanceAction(userId, newBalance, currentUser.id);
+    if (result.success) {
+      toast({ title: 'Balanță Actualizată!', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  };
+  
+  const resetPact = async (userId: string) => {
+    if (!currentUser) return;
+    const result = await resetPactAction(userId, currentUser.id);
+    if (result.success) {
+      toast({ title: 'Pact Anulat', description: result.message });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  };
+
+  const fullReset = async () => {
+    if (!currentUser) return;
+    const result = await fullResetAction(currentUser.id);
+    if (result.success) {
+      toast({ title: 'Resetare Completă!', description: result.message, duration: 5000 });
+      router.refresh();
+    } else {
+      toast({ variant: 'destructive', title: 'Eroare', description: result.message });
+    }
+  }
 
   const balance = currentUser ? currentUser.balance : 0;
   
@@ -293,7 +332,8 @@ export function AppProvider({ children, initialData }: { children: ReactNode, in
       balance, pariuri, bets, addPariu, placeBet, resolvePariu, addFunds,
       pactControlEnabled: settings.pactControlEnabled, togglePactControl, 
       aiVoiceEnabled: settings.aiVoiceEnabled, toggleAiVoice, 
-      toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword 
+      toggleAdmin, deleteUser, deletePariu, addComment, updateAdminPassword,
+      updateUserBalance, resetPact, fullReset
   };
 
   return (

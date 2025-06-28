@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { Home, LogOut, ShieldPlus, Wallet, History, Trophy, MessageSquareQuote } from 'lucide-react';
+import { Home, LogOut, Settings, Wallet, History, Trophy, MessageSquareQuote, ClipboardList } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -25,15 +25,13 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
 function NavMenu() {
-  const { currentUser, appName, slogan } = useApp();
+  const { currentUser } = useApp();
   const { setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
 
-  // This is a simplified example. In a real app, you would have a more robust routing and navigation system.
-  // We'll use the pathname to determine the active link.
   const [pathname, setPathname] = React.useState('');
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -84,14 +82,24 @@ function NavMenu() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       {currentUser?.isAdmin && (
-          <SidebarMenuItem>
-          <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin')}>
-              <Link href="/admin" onClick={handleLinkClick}>
-              <ShieldPlus />
-              Panou Admin
-              </Link>
-          </SidebarMenuButton>
-          </SidebarMenuItem>
+          <>
+            <SidebarMenuItem>
+            <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin/bets')}>
+                <Link href="/admin/bets" onClick={handleLinkClick}>
+                <ClipboardList />
+                Gestiune Pariuri
+                </Link>
+            </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+            <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin') && !pathname.startsWith('/admin/bets')}>
+                <Link href="/admin" onClick={handleLinkClick}>
+                <Settings />
+                Setări Admin
+                </Link>
+            </SidebarMenuButton>
+            </SidebarMenuItem>
+          </>
       )}
     </SidebarMenu>
   );

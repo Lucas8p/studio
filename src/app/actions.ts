@@ -10,6 +10,7 @@ import {
   saveBets,
   getSettings,
   saveSettings,
+  initialPariuri,
 } from '@/lib/data';
 import type {
   User,
@@ -319,11 +320,13 @@ export async function addCommentAction(pariuId: string, text: string, userId: st
 
 // --- Admin Actions ---
 
+function isPrimaryAdmin(userId: string, users: User[]): boolean {
+    return users.length > 0 && users[0].id === userId;
+}
+
 export async function toggleAdminAction(targetUserId: string, currentUserId: string) {
     const users = await getUsers();
-    const currentUser = users.find(u => u.id === currentUserId);
-    
-    if (!currentUser || currentUser.id !== users[0]?.id) {
+    if (!isPrimaryAdmin(currentUserId, users)) {
         return { success: false, message: 'Doar administratorul principal poate face această acțiune.' };
     }
     if (targetUserId === users[0]?.id) {
@@ -350,9 +353,7 @@ export async function toggleAdminAction(targetUserId: string, currentUserId: str
 
 export async function deleteUserAction(targetUserId: string, currentUserId: string) {
      const [users, bets] = await Promise.all([getUsers(), getBets()]);
-     const currentUser = users.find(u => u.id === currentUserId);
-
-    if (!currentUser || currentUser.id !== users[0]?.id) {
+    if (!isPrimaryAdmin(currentUserId, users)) {
         return { success: false, message: 'Doar administratorul principal poate face această acțiune.' };
     }
     if (targetUserId === users[0]?.id) {
@@ -369,8 +370,7 @@ export async function deleteUserAction(targetUserId: string, currentUserId: stri
 
 export async function updateAdminPasswordAction(targetUserId: string, newPassword: string, currentUserId: string) {
     const users = await getUsers();
-    const currentUser = users.find(u => u.id === currentUserId);
-    if (!currentUser || currentUser.id !== users[0]?.id) {
+    if (!isPrimaryAdmin(currentUserId, users)) {
       return { success: false, message: 'Doar administratorul principal poate schimba parole.' };
     }
     
@@ -397,4 +397,56 @@ export async function updateSettingsAction(newSettings: Partial<AppSettings>) {
         console.error("Failed to update settings:", error);
         return { success: false, message: 'A apărut o eroare la salvarea setărilor.' };
     }
+}
+
+export async function updateUserBalanceAction(targetUserId: string, newBalance: number, currentUserId: string) {
+    const users = await getUsers();
+    if (!isPrimaryAdmin(currentUserId, users)) {
+        return { success: false, message: 'Doar administratorul principal poate modifica balanțele.' };
+    }
+    const updatedUsers = users.map(u => {
+        if (u.id === targetUserId) {
+            return updateBalanceHistory(u, newBalance);
+        }
+        return u;
+    });
+    await saveUsers(updatedUsers);
+    return { success: true, message: `Balanța pentru ${targetUserId} a fost setată la ${newBalance.toFixed(2)}.` };
+}
+
+export async function resetPactAction(targetUserId: string, currentUserId: string) {
+    const users = await getUsers();
+    if (!isPrimaryAdmin(currentUserId, users)) {
+        return { success: false, message: 'Doar administratorul principal poate anula pacturi.' };
+    }
+    const updatedUsers = users.map(u => {
+        if (u.id === targetUserId) {
+            return { ...u, hasMadePact: false };
+        }
+        return u;
+    });
+    await saveUsers(updatedUsers);
+    return { success: true, message: `Pactul pentru ${targetUserId} a fost anulat.` };
+}
+
+export async function fullResetAction(currentUserId: string) {
+    const users = await getUsers();
+    const primaryAdmin = users.find(u => isPrimaryAdmin(u.id, users));
+    if (!primaryAdmin || primaryAdmin.id !== currentUserId) {
+        return { success: false, message: 'Doar administratorul principal poate reseta platforma.' };
+    }
+
+    const resetAdmin: User = {
+        ...primaryAdmin,
+        balance: 1000,
+        hasMadePact: false,
+        achievements: [],
+        balanceHistory: [{ date: new Date().getTime(), balance: 1000 }],
+    };
+
+    await saveUsers([resetAdmin]);
+    await saveBets([]);
+    await savePariuri(initialPariuri);
+
+    return { success: true, message: 'Platforma a fost resetată la starea inițială!' };
 }
