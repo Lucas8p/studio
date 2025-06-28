@@ -29,12 +29,16 @@
       {
         "date": 1751050190915,
         "balance": 1000
+      },
+      {
+        "date": 1751106058996,
+        "balance": 1000
       }
     ]
   },
   {
     "id": "luca",
-    "balance": 1000,
+    "balance": 1008,
     "isAdmin": false,
     "hasMadePact": false,
     "achievements": [],
@@ -42,6 +46,10 @@
       {
         "date": 1751054899244,
         "balance": 1000
+      },
+      {
+        "date": 1751106064810,
+        "balance": 1008
       }
     ]
   },
