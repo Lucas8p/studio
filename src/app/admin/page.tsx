@@ -90,7 +90,6 @@ export default function AdminSettingsPage() {
   const handleSaveBalance = (user: User) => {
     const newBalanceStr = balanceInputs[user.id];
     if (newBalanceStr === undefined || newBalanceStr === '') {
-        // If the input is empty, reset it to the current balance without saving.
         setBalanceInputs(prev => ({...prev, [user.id]: user.balance.toString()}));
         return;
     }
@@ -134,63 +133,127 @@ export default function AdminSettingsPage() {
                     <CardDescription>Promovează, retrogradează sau șterge utilizatori. Modifică balanțele și anulează pacturi.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Utilizator</TableHead>
-                                <TableHead>Balanță</TableHead>
-                                <TableHead>Rol</TableHead>
-                                <TableHead className="text-right">Acțiuni</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map(user => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="font-medium truncate max-w-24 sm:max-w-none">{user.id}</TableCell>
-                                    <TableCell>
+                    {/* Mobile View */}
+                    <div className="md:hidden space-y-4">
+                        {users.map(user => (
+                            <Card key={user.id} className="w-full">
+                                <CardHeader>
+                                    <div className="flex justify-between items-start gap-4">
+                                        <div className="space-y-1">
+                                            <CardTitle className="truncate max-w-48 text-lg">{user.id}</CardTitle>
+                                            <CardDescription>
+                                                {user.id === users[0].id 
+                                                    ? <Badge variant="destructive">Admin Principal</Badge> 
+                                                    : user.isAdmin ? <Badge variant="secondary">Admin Pariuri</Badge> : <Badge variant="outline">Utilizator</Badge>}
+                                            </CardDescription>
+                                        </div>
+                                        {user.hasMadePact && (
+                                            <Button size="sm" variant="ghost" className="text-amber-500 shrink-0" onClick={() => resetPact(user.id)}>
+                                                <Undo2 className="mr-2 h-4 w-4" /> Anulează Pact
+                                            </Button>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <Label htmlFor={`balance-${user.id}`} className="text-xs">Balanță</Label>
                                         <div className="flex items-center gap-2">
                                             <Input
+                                                id={`balance-${user.id}`}
                                                 type="number"
-                                                className="w-28 h-8"
+                                                className="h-9"
                                                 placeholder={user.balance.toFixed(2)}
                                                 value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
                                                 onChange={(e) => handleBalanceChange(user.id, e.target.value)}
                                                 disabled={user.id === currentUser.id}
                                             />
-                                            <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)} disabled={user.id === currentUser.id}>
+                                            <Button size="sm" variant="outline" className="h-9" onClick={() => handleSaveBalance(user)} disabled={user.id === currentUser.id}>
                                                 <Coins className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {user.id === users[0].id 
-                                            ? <Badge variant="destructive">Admin Principal</Badge> 
-                                            : user.isAdmin ? <Badge variant="secondary">Admin Pariuri</Badge> : <Badge variant="outline">Utilizator</Badge>}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {user.id !== currentUser.id && (
-                                            <div className="flex flex-col sm:flex-row gap-2 justify-end">
-                                                {user.hasMadePact && (
-                                                    <Button size="sm" variant="ghost" className="text-amber-500" onClick={() => resetPact(user.id)}>
-                                                        <Undo2 className="h-4 w-4" />
-                                                        <span className="hidden lg:inline ml-2">Anulează Pact</span>
-                                                    </Button>
-                                                )}
+                                    </div>
+                                    {user.id !== currentUser.id && (
+                                        <div>
+                                            <Label className="text-xs">Acțiuni Administrative</Label>
+                                            <div className="flex flex-col gap-2 mt-1">
                                                 <Button size="sm" variant="outline" onClick={() => toggleAdmin(user.id)}>
-                                                    {user.isAdmin ? <ShieldX className="h-4 w-4"/> : <ShieldCheck className="h-4 w-4"/>}
-                                                    <span className="hidden lg:inline ml-2">{user.isAdmin ? 'Retrogradează' : 'Promovează'}</span>
+                                                    {user.isAdmin ? <ShieldX className="mr-2 h-4 w-4"/> : <ShieldCheck className="mr-2 h-4 w-4"/>}
+                                                    {user.isAdmin ? 'Retrogradează' : 'Promovează'}
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => setUserToDelete(user.id)}>
-                                                    <UserX className="h-4 w-4"/>
-                                                    <span className="hidden lg:inline ml-2">Șterge</span>
+                                                    <UserX className="mr-2 h-4 w-4"/>
+                                                    Șterge utilizator
                                                 </Button>
                                             </div>
-                                        )}
-                                    </TableCell>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {/* Desktop View */}
+                    <div className="hidden md:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Utilizator</TableHead>
+                                    <TableHead>Balanță</TableHead>
+                                    <TableHead>Rol</TableHead>
+                                    <TableHead className="text-right">Acțiuni</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {users.map(user => (
+                                    <TableRow key={user.id}>
+                                        <TableCell className="font-medium truncate max-w-24 sm:max-w-none">{user.id}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Input
+                                                    type="number"
+                                                    className="w-28 h-8"
+                                                    placeholder={user.balance.toFixed(2)}
+                                                    value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
+                                                    onChange={(e) => handleBalanceChange(user.id, e.target.value)}
+                                                    disabled={user.id === currentUser.id}
+                                                />
+                                                <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)} disabled={user.id === currentUser.id}>
+                                                    <Coins className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {user.id === users[0].id 
+                                                ? <Badge variant="destructive">Admin Principal</Badge> 
+                                                : user.isAdmin ? <Badge variant="secondary">Admin Pariuri</Badge> : <Badge variant="outline">Utilizator</Badge>}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex flex-col lg:flex-row gap-2 justify-end items-end lg:items-center">
+                                                {user.hasMadePact && (
+                                                     <Button size="sm" variant="ghost" className="text-amber-500" onClick={() => resetPact(user.id)}>
+                                                        <Undo2 className="h-4 w-4 lg:mr-2" />
+                                                        <span className="hidden lg:inline">Anulează Pact</span>
+                                                    </Button>
+                                                )}
+                                                {user.id !== currentUser.id && (
+                                                    <>
+                                                        <Button size="sm" variant="outline" onClick={() => toggleAdmin(user.id)}>
+                                                            {user.isAdmin ? <ShieldX className="h-4 w-4 lg:mr-2"/> : <ShieldCheck className="h-4 w-4 lg:mr-2"/>}
+                                                            <span className="hidden lg:inline">{user.isAdmin ? 'Retrogradează' : 'Promovează'}</span>
+                                                        </Button>
+                                                        <Button size="sm" variant="destructive" onClick={() => setUserToDelete(user.id)}>
+                                                            <UserX className="h-4 w-4 lg:mr-2"/>
+                                                            <span className="hidden lg:inline">Șterge</span>
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -379,3 +442,4 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
