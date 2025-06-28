@@ -110,13 +110,13 @@ export default function AdminSettingsPage() {
   const otherAdmins = users.filter(u => u.isAdmin && u.id !== currentUser?.id);
 
 
-  if (!currentUser?.isAdmin) {
+  if (!isPrimaryAdmin) {
     return (
       <div className="flex items-center justify-center h-full">
         <Card className="max-w-md text-center">
             <CardHeader>
                 <CardTitle>Acces Interzis</CardTitle>
-                <CardDescription>Nu aveți permisiunea de a vizualiza această pagină.</CardDescription>
+                <CardDescription>Doar administratorul principal poate accesa această pagină.</CardDescription>
             </CardHeader>
         </Card>
       </div>
@@ -125,7 +125,6 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8">
-      {isPrimaryAdmin && (
         <>
             <Card>
                 <CardHeader>
@@ -165,14 +164,13 @@ export default function AdminSettingsPage() {
                                                 placeholder={user.balance.toFixed(2)}
                                                 value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
                                                 onChange={(e) => handleBalanceChange(user.id, e.target.value)}
-                                                disabled={!isPrimaryAdmin && user.id === currentUser.id}
                                             />
-                                            <Button size="sm" variant="outline" className="h-9" onClick={() => handleSaveBalance(user)} disabled={!isPrimaryAdmin && user.id === currentUser.id}>
+                                            <Button size="sm" variant="outline" className="h-9" onClick={() => handleSaveBalance(user)}>
                                                 <Coins className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </div>
-                                    {user.id !== currentUser.id && (
+                                    {user.id !== currentUser?.id && (
                                         <div>
                                             <Label className="text-xs">Acțiuni Administrative</Label>
                                             <div className="flex flex-col gap-2 mt-1">
@@ -215,9 +213,8 @@ export default function AdminSettingsPage() {
                                                     placeholder={user.balance.toFixed(2)}
                                                     value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
                                                     onChange={(e) => handleBalanceChange(user.id, e.target.value)}
-                                                    disabled={!isPrimaryAdmin && user.id === currentUser.id}
                                                 />
-                                                <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)} disabled={!isPrimaryAdmin && user.id === currentUser.id}>
+                                                <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)}>
                                                     <Coins className="h-4 w-4" />
                                                 </Button>
                                             </div>
@@ -235,7 +232,7 @@ export default function AdminSettingsPage() {
                                                         <span className="hidden lg:inline">Anulează Pact</span>
                                                     </Button>
                                                 )}
-                                                {user.id !== currentUser.id && (
+                                                {user.id !== currentUser?.id && (
                                                     <>
                                                         <Button size="sm" variant="outline" onClick={() => toggleAdmin(user.id)}>
                                                             {user.isAdmin ? <ShieldX className="h-4 w-4 lg:mr-2"/> : <ShieldCheck className="h-4 w-4 lg:mr-2"/>}
@@ -402,8 +399,7 @@ export default function AdminSettingsPage() {
                 </CardContent>
             </Card>
         </>
-      )}
-
+      
       <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -442,3 +438,4 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+

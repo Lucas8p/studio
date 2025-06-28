@@ -25,7 +25,7 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
 function NavMenu() {
-  const { currentUser } = useApp();
+  const { currentUser, users } = useApp();
   const { setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {
@@ -38,6 +38,8 @@ function NavMenu() {
       setPathname(window.location.pathname);
     }
   }, []);
+
+  const isPrimaryAdmin = currentUser && users.length > 0 && currentUser.id === users[0].id;
 
   return (
     <SidebarMenu>
@@ -82,24 +84,24 @@ function NavMenu() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       {currentUser?.isAdmin && (
-          <>
-            <SidebarMenuItem>
-            <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin/bets')}>
-                <Link href="/admin/bets" onClick={handleLinkClick}>
-                <ClipboardList />
-                Gestiune Pariuri
-                </Link>
-            </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-            <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin') && !pathname.startsWith('/admin/bets')}>
-                <Link href="/admin" onClick={handleLinkClick}>
-                <Settings />
-                Setări Admin
-                </Link>
-            </SidebarMenuButton>
-            </SidebarMenuItem>
-          </>
+        <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin/bets')}>
+            <Link href="/admin/bets" onClick={handleLinkClick}>
+            <ClipboardList />
+            Gestiune Pariuri
+            </Link>
+        </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+      {isPrimaryAdmin && (
+        <SidebarMenuItem>
+        <SidebarMenuButton asChild variant="ghost" isActive={pathname.startsWith('/admin') && !pathname.startsWith('/admin/bets')}>
+            <Link href="/admin" onClick={handleLinkClick}>
+            <Settings />
+            Setări Admin
+            </Link>
+        </SidebarMenuButton>
+        </SidebarMenuItem>
       )}
     </SidebarMenu>
   );

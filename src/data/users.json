@@ -3,7 +3,7 @@
     "id": "lucas",
     "balance": 1666,
     "isAdmin": true,
-    "hasMadePact": true,
+    "hasMadePact": false,
     "achievements": [
       "PACT_MAKER"
     ],
@@ -41,7 +41,7 @@
         "balance": 1666
       }
     ],
-    "password": "12345678"
+    "password": "12345"
   },
   {
     "id": "luca",
