@@ -165,9 +165,9 @@ export default function AdminSettingsPage() {
                                                 placeholder={user.balance.toFixed(2)}
                                                 value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
                                                 onChange={(e) => handleBalanceChange(user.id, e.target.value)}
-                                                disabled={user.id === currentUser.id}
+                                                disabled={!isPrimaryAdmin && user.id === currentUser.id}
                                             />
-                                            <Button size="sm" variant="outline" className="h-9" onClick={() => handleSaveBalance(user)} disabled={user.id === currentUser.id}>
+                                            <Button size="sm" variant="outline" className="h-9" onClick={() => handleSaveBalance(user)} disabled={!isPrimaryAdmin && user.id === currentUser.id}>
                                                 <Coins className="h-4 w-4" />
                                             </Button>
                                         </div>
@@ -215,9 +215,9 @@ export default function AdminSettingsPage() {
                                                     placeholder={user.balance.toFixed(2)}
                                                     value={balanceInputs[user.id] ?? user.balance.toFixed(2)}
                                                     onChange={(e) => handleBalanceChange(user.id, e.target.value)}
-                                                    disabled={user.id === currentUser.id}
+                                                    disabled={!isPrimaryAdmin && user.id === currentUser.id}
                                                 />
-                                                <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)} disabled={user.id === currentUser.id}>
+                                                <Button size="sm" variant="outline" className="h-8" onClick={() => handleSaveBalance(user)} disabled={!isPrimaryAdmin && user.id === currentUser.id}>
                                                     <Coins className="h-4 w-4" />
                                                 </Button>
                                             </div>
@@ -442,4 +442,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-

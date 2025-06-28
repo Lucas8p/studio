@@ -199,14 +199,13 @@ export default function AdminBetsPage() {
           <CardTitle className="font-headline text-2xl">Rezolvă Pariuri Deschise</CardTitle>
           <CardDescription>Selectează opțiunea câștigătoare pentru a închide pariurile și a plăti câștigătorii.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {openPariuri.length > 0 ? openPariuri.map((pariu, index) => (
-            <div key={pariu.id}>
-              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 p-4 border rounded-lg">
-                <p className="font-medium flex-1 truncate">{pariu.title}</p>
-                <div className="flex flex-col sm:flex-row items-stretch gap-2">
+        <CardContent className="space-y-4">
+          {openPariuri.length > 0 ? openPariuri.map((pariu) => (
+            <div key={pariu.id} className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 p-4 border rounded-lg">
+                <p className="font-medium flex-1 truncate" title={pariu.title}>{pariu.title}</p>
+                <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full lg:w-auto">
                   <Select onValueChange={(value) => setSelections(prev => ({ ...prev, [pariu.id]: value }))}>
-                    <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectTrigger className="w-full lg:w-[250px]">
                       <SelectValue placeholder="Selectează opțiunea câștigătoare" />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,16 +216,14 @@ export default function AdminBetsPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button onClick={() => handleResolve(pariu.id)} disabled={!selections[pariu.id]}>
+                  <Button onClick={() => handleResolve(pariu.id)} disabled={!selections[pariu.id]} className="w-full sm:w-auto">
                     Rezolvă
                   </Button>
-                   <Button variant="ghost" size="icon" onClick={() => setPariuToDelete(pariu)}>
+                   <Button variant="ghost" size="icon" onClick={() => setPariuToDelete(pariu)} className="w-full sm:w-auto flex-shrink-0">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                 </div>
               </div>
-              {index < openPariuri.length - 1 && <Separator className="my-6"/>}
-            </div>
           )) : (
             <p className="text-muted-foreground text-center">Niciun pariu nu este deschis pentru rezolvare în acest moment.</p>
           )}
