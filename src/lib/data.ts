@@ -4,7 +4,7 @@ import path from 'path';
 import type { User, Pariu, Bet, InitialData, AppSettings } from '@/contexts/app-context';
 
 // Define file paths
-const dataDir = path.join(process.cwd(), 'src', 'data');
+const dataDir = path.join(process.cwd(), 'data');
 const usersFilePath = path.join(dataDir, 'users.json');
 const pariuriFilePath = path.join(dataDir, 'pariuri.json');
 const betsFilePath = path.join(dataDir, 'bets.json');

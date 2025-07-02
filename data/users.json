@@ -1,0 +1,16 @@
+[
+  {
+    "id": "lucas",
+    "balance": 1000,
+    "isAdmin": true,
+    "hasMadePact": false,
+    "achievements": [],
+    "balanceHistory": [
+      {
+        "date": 1751107958698,
+        "balance": 1000
+      }
+    ],
+    "password": "admin1234"
+  }
+]
