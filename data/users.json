@@ -12,5 +12,18 @@
       }
     ],
     "password": "admin1234"
+  },
+  {
+    "id": "manu",
+    "balance": 1000,
+    "isAdmin": false,
+    "hasMadePact": false,
+    "achievements": [],
+    "balanceHistory": [
+      {
+        "date": 1751484955640,
+        "balance": 1000
+      }
+    ]
   }
 ]

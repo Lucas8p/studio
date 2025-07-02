@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useApp } from '@/hooks/use-app';
@@ -9,10 +8,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const censorUsername = (username: string): string => {
-    if (username.length <= 2) {
+    if (username.length <= 1) {
         return username;
     }
-    return `${username[0]}${'*'.repeat(3)}${username.slice(-1)}`;
+    return `${username[0]}${'*'.repeat(3)}`;
 };
 
 
@@ -93,4 +92,3 @@ export default function LeaderboardPage() {
         </Card>
     );
 }
-
