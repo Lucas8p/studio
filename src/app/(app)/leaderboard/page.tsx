@@ -8,6 +8,14 @@ import { Skull, Crown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+const censorUsername = (username: string): string => {
+    if (username.length <= 2) {
+        return username;
+    }
+    return `${username[0]}${'*'.repeat(3)}${username.slice(-1)}`;
+};
+
+
 export default function LeaderboardPage() {
     const { users, currentUser } = useApp();
     if (!currentUser) return null;
@@ -31,42 +39,47 @@ export default function LeaderboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {sortedUsers.length > 0 ? sortedUsers.map(user => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center gap-2">
-                                        {user.isAdmin && (
-                                            <TooltipProvider delayDuration={0}>
-                                                <Tooltip>
-                                                    <TooltipTrigger>
-                                                        <Crown className="h-4 w-4 text-accent"/>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Administrator</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </TooltipProvider>
-                                        )}
-                                        <span className="truncate">{user.id}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right font-mono">{user.balance.toFixed(2)} T</TableCell>
-                                    <TableCell className="text-center">
-                                        {user.hasMadePact && (
-                                            <TooltipProvider delayDuration={0}>
-                                                <Tooltip>
-                                                    <TooltipTrigger>
-                                                        <Skull className="h-5 w-5 mx-auto text-destructive" />
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Pact Încheiat</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </TooltipProvider>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            )) : (
+                            {sortedUsers.length > 0 ? sortedUsers.map(user => {
+                                const isCurrentUserInRow = currentUser.id === user.id;
+                                const displayName = (currentUser.isAdmin || isCurrentUserInRow) ? user.id : censorUsername(user.id);
+                                
+                                return (
+                                    <TableRow key={user.id}>
+                                        <TableCell className="font-medium">
+                                            <div className="flex items-center gap-2">
+                                            {user.isAdmin && (
+                                                <TooltipProvider delayDuration={0}>
+                                                    <Tooltip>
+                                                        <TooltipTrigger>
+                                                            <Crown className="h-4 w-4 text-accent"/>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Administrator</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+                                            <span className="truncate">{displayName}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right font-mono">{user.balance.toFixed(2)} T</TableCell>
+                                        <TableCell className="text-center">
+                                            {user.hasMadePact && (
+                                                <TooltipProvider delayDuration={0}>
+                                                    <Tooltip>
+                                                        <TooltipTrigger>
+                                                            <Skull className="h-5 w-5 mx-auto text-destructive" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Pact Încheiat</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }) : (
                                 <TableRow>
                                     <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
                                         Niciun utilizator înregistrat.
@@ -80,3 +93,4 @@ export default function LeaderboardPage() {
         </Card>
     );
 }
+
