@@ -65,7 +65,7 @@ NEXT_PUBLIC_ADMIN_PASSWORD=your_secret_password_here
 
 ### 4. Run the Application with a Process Manager
 
-To keep your application running permanently, it's best to use a process manager like `pm2`.
+To keep your application running permanently, even after a server reboot, it's best to use a process manager like `pm2`.
 
 ```bash
 # Install pm2 globally
@@ -73,9 +73,15 @@ npm install pm2 -g
 
 # Start the Next.js app with pm2
 pm2 start npm --name "inspairbet" -- start
+
+# Tell pm2 to save the process list
+pm2 save
+
+# Generate a startup script to run on boot
+pm2 startup
 ```
 
-This command will start your app, name it "inspairbet", and ensure it restarts automatically if it crashes or the server reboots. You can check its status with `pm2 list`.
+The `pm2 startup` command will output another command that you need to copy and run. This command will register `pm2` as a service that starts automatically when the server boots, ensuring your "inspairbet" app also restarts. You can check its status with `pm2 list`.
 
 ### 5. Configure a Reverse Proxy
 
@@ -102,24 +108,26 @@ This command builds a Docker image from the `Dockerfile` and tags it with the na
 
 **B. Running the Container:**
 
-To run the container, you need to provide your `.env.local` file with the `GOOGLE_API_KEY` and `NEXT_PUBLIC_ADMIN_PASSWORD`. The easiest way is to use the `--env-file` flag.
+To run the container and ensure it restarts automatically after a server reboot, you need to provide your `.env.local` file and a restart policy.
 
 ```bash
-docker run -p 3000:3000 --env-file .env.local --name inspairbet-app -d inspairbet
+docker run -d -p 3000:3000 --restart unless-stopped --env-file .env.local --name inspairbet-app inspairbet
 ```
 
+*   `-d`: Runs the container in detached mode (in the background).
 *   `-p 3000:3000`: Maps port 3000 from inside the container to port 3000 on your server.
+*   `--restart unless-stopped`: This is the crucial part. It tells Docker to automatically restart the container unless it was explicitly stopped. This ensures your app comes back online after a server reboot.
 *   `--env-file .env.local`: Tells Docker to load environment variables from your `.env.local` file.
 *   `--name inspairbet-app`: Gives your running container a friendly name.
-*   `-d`: Runs the container in detached mode (in the background).
 
 **C. On Unraid:**
 
 1.  Go to the **"Docker"** tab in your Unraid dashboard.
 2.  Click **"Add Container"**.
-3.  You'll be presented with a template to fill out.
+3.  You'll be presented with a template to fill out. At the top right, click "Advanced View" to see all options.
     *   **Name:** `inspairbet-app` (or whatever you like)
     *   **Repository:** `inspairbet` (the name you used when building the image)
+    *   **Restart Policy:** Select **`Unless-stopped`**. This is the key to making sure your app starts after a reboot.
     *   **Network Type:** Bridge
     *   **Port Mapping:** Click "Add another Path, Port, Variable...", set "Container Port" to `3000` and "Host Port" to `3000` (or another available port on your Unraid server).
     *   **Environment Variables:** Add a variable for `GOOGLE_API_KEY` and paste your key. Add another for `NEXT_PUBLIC_ADMIN_PASSWORD` and paste your admin password. Alternatively, if you can map a file, you can map your `.env.local` file.
